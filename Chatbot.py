@@ -13,14 +13,15 @@ from logics.rag import answer_query as rag_answer_query
 
 
 if load_dotenv('.env'):
-   # for local development
-   OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+    # for local development
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 else:
-   OPENAI_API_KEY = st.secrets['OPENAI_API_KEY']
+    OPENAI_API_KEY = st.secrets['OPENAI_API_KEY']
 
 
 # Pass the API Key to the OpenAI Client
 client = OpenAI(api_key=OPENAI_API_KEY)
+
 # Some other code here are omitted for brevity
 
 
@@ -96,12 +97,16 @@ st.markdown(
 )
 
 
-# To password protect the app
-from helper_functions.utility import check_credentials 
+# ============================================================
+# Password protection
+# ============================================================
+
+from helper_functions.utility import check_credentials
 
 
-# Check if the username and password is correct.  
-if not check_credentials(): 
+# Check if the username and password is correct.
+if not check_credentials():
+
     st.markdown(
         """
         <br><br><br><br>
@@ -116,7 +121,9 @@ if not check_credentials():
         """,
         unsafe_allow_html=True,
     )
+
     st.stop()
+
 
 # ============================================================
 # Page header
@@ -132,6 +139,7 @@ st.write(
     """
 )
 
+
 # ============================================================
 # Session state
 # ============================================================
@@ -144,25 +152,48 @@ if "system_prompt" not in st.session_state:
     st.session_state.system_prompt = "You are a helpful assistant."
 
 
-# Starter prompt session state
 if "starter_prompt" not in st.session_state:
     st.session_state.starter_prompt = ""
+
+
+# ============================================================
+# Capture pending starter prompt
+# ============================================================
+
+# Store the selected starter prompt in a local variable.
+# This allows us to process it as a normal user message while
+# ensuring the starter cards do not reappear during the rerun.
+
+pending_starter_prompt = st.session_state.starter_prompt
 
 
 # ============================================================
 # Starter prompts
 # ============================================================
 
-if not st.session_state.messages:
+# Starter prompts are only shown at the beginning of a
+# completely new conversation.
+#
+# Once the user selects either starter prompt, the cards
+# disappear and the selected prompt is processed as the
+# first user message.
+
+if (
+    not st.session_state.messages
+    and not pending_starter_prompt
+):
 
     st.markdown(
         '<div class="section-title">How can I help?</div>',
         unsafe_allow_html=True,
     )
 
-
     starter_col1, starter_col2 = st.columns(2)
 
+
+    # --------------------------------------------------------
+    # Starter prompt 1
+    # --------------------------------------------------------
 
     with starter_col1:
 
@@ -196,6 +227,10 @@ if not st.session_state.messages:
                 st.rerun()
 
 
+    # --------------------------------------------------------
+    # Starter prompt 2
+    # --------------------------------------------------------
+
     with starter_col2:
 
         with st.container(border=True):
@@ -227,6 +262,21 @@ if not st.session_state.messages:
                 )
 
                 st.rerun()
+
+
+# ============================================================
+# Clear the processed starter prompt
+# ============================================================
+
+# If a starter prompt was selected, clear it from session state
+# now that we have captured it in pending_starter_prompt.
+#
+# This prevents the same starter prompt from being processed
+# again on a subsequent rerun.
+
+if pending_starter_prompt:
+
+    st.session_state.starter_prompt = ""
 
 
 # ============================================================
@@ -335,6 +385,7 @@ st.sidebar.markdown(
     "### 🎭 Response Style"
 )
 
+
 persona_options = {
 
     "SOP Navigator": (
@@ -378,6 +429,7 @@ st.sidebar.markdown(
     "### 🤖 Model"
 )
 
+
 model = st.sidebar.selectbox(
     "Select Model",
     ["gpt-4o-mini", "gpt-4o"],
@@ -397,9 +449,11 @@ conversation_text = "\n".join(
     for message in st.session_state.messages
 )
 
+
 character_count = len(
     conversation_text
 )
+
 
 st.sidebar.caption(
     f"Conversation characters: {character_count}"
@@ -422,17 +476,13 @@ for message in st.session_state.messages:
 
 
 # ============================================================
-# Handle starter prompt
+# Determine prompt
 # ============================================================
 
-prompt = None
+# If a starter prompt was selected, use it as the prompt.
+# Otherwise, wait for normal chat input.
 
-
-if st.session_state.starter_prompt:
-
-    prompt = st.session_state.starter_prompt
-
-    st.session_state.starter_prompt = ""
+prompt = pending_starter_prompt
 
 
 # ============================================================
@@ -455,6 +505,10 @@ if chat_prompt:
 
 if prompt:
 
+    # --------------------------------------------------------
+    # Add user message
+    # --------------------------------------------------------
+
     st.session_state.messages.append(
         {
             "role": "user",
@@ -469,6 +523,10 @@ if prompt:
             prompt
         )
 
+
+    # --------------------------------------------------------
+    # Check API key
+    # --------------------------------------------------------
 
     api_key = os.getenv(
         "OPENAI_API_KEY"
@@ -494,6 +552,10 @@ if prompt:
         st.stop()
 
 
+    # --------------------------------------------------------
+    # Send prompt to RAG
+    # --------------------------------------------------------
+
     assistant_response_text = (
         rag_answer_query(
             prompt,
@@ -501,6 +563,10 @@ if prompt:
         )
     )
 
+
+    # --------------------------------------------------------
+    # Display assistant response
+    # --------------------------------------------------------
 
     with st.chat_message(
         "assistant"
@@ -510,6 +576,10 @@ if prompt:
             assistant_response_text
         )
 
+
+    # --------------------------------------------------------
+    # Save assistant response
+    # --------------------------------------------------------
 
     st.session_state.messages.append(
         {
@@ -540,6 +610,7 @@ if st.sidebar.button(
 # ============================================================
 
 chat_export = ""
+
 
 for message in st.session_state.messages:
 
