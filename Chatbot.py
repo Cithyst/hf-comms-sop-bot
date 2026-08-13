@@ -1,16 +1,17 @@
 import os
 import tempfile
+import fitz
 from pathlib import Path
 
 import streamlit as st
 from dotenv import load_dotenv
+from langchain_community.document_loaders import PyPDFLoader
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from openai import OpenAI
 
-from helper_functions.document_loader import load_and_split
 from logics.rag import answer_query as rag_answer_query
-
 
 if load_dotenv('.env'):
     # for local development
@@ -18,12 +19,10 @@ if load_dotenv('.env'):
 else:
     OPENAI_API_KEY = st.secrets['OPENAI_API_KEY']
 
-
 # Pass the API Key to the OpenAI Client
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 # Some other code here are omitted for brevity
-
 
 # ============================================================
 # Page configuration
@@ -33,7 +32,6 @@ st.set_page_config(
     page_title="Healthcare Financing SOP Assistant",
     page_icon="🤖",
 )
-
 
 # ============================================================
 # Simple UI styling
@@ -140,6 +138,7 @@ st.write(
 )
 
 
+
 # ============================================================
 # Session state
 # ============================================================
@@ -147,14 +146,11 @@ st.write(
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-
 if "system_prompt" not in st.session_state:
     st.session_state.system_prompt = "You are a helpful assistant."
 
-
 if "starter_prompt" not in st.session_state:
     st.session_state.starter_prompt = ""
-
 
 # ============================================================
 # Capture pending starter prompt
@@ -165,7 +161,6 @@ if "starter_prompt" not in st.session_state:
 # ensuring the starter cards do not reappear during the rerun.
 
 pending_starter_prompt = st.session_state.starter_prompt
-
 
 # ============================================================
 # Starter prompts
@@ -189,6 +184,7 @@ if (
     )
 
     starter_col1, starter_col2 = st.columns(2)
+
 
 
     # --------------------------------------------------------
@@ -226,7 +222,6 @@ if (
 
                 st.rerun()
 
-
     # --------------------------------------------------------
     # Starter prompt 2
     # --------------------------------------------------------
@@ -255,14 +250,12 @@ if (
             ):
 
                 st.session_state.starter_prompt = (
-                    "I have a media-related situation. Can I describe "
+                    "I have a my own context/situation. Can I describe "
                     "what happened and get advice on whether this SOP "
-                    "applies, which pathway I should follow, and what "
-                    "I should do next?"
+                    "applies, and what I should do next?"
                 )
 
                 st.rerun()
-
 
 # ============================================================
 # Clear the processed starter prompt
@@ -278,95 +271,218 @@ if pending_starter_prompt:
 
     st.session_state.starter_prompt = ""
 
+# ============================================================
+# Uploaded document RAG helpers
+# ============================================================
+
+def load_and_split(uploaded_file):
+    """
+    Extract text from the uploaded PDF with PyMuPDF, preserving page
+    metadata, then split it into LangChain Document chunks.
+
+    PyMuPDF is used instead of PyPDFLoader because some PDFs have a
+    problematic or incomplete text layer that can result in chunks
+    containing only layout/decorative text.
+    """
+    from langchain_core.documents import Document
+
+    pdf_bytes = uploaded_file.getvalue()
+
+    documents = []
+
+    pdf = fitz.open(stream=pdf_bytes, filetype="pdf")
+
+    try:
+        for page_number, page in enumerate(pdf, start=1):
+
+            text = page.get_text("text").strip()
+
+            # Remove extremely small / layout-only extractions.
+            # Keep normal short pages such as headings if they contain
+            # meaningful alphabetic text.
+            alpha_chars = sum(
+                character.isalpha()
+                for character in text
+            )
+
+            if alpha_chars < 20:
+                continue
+
+            documents.append(
+                Document(
+                    page_content=text,
+                    metadata={
+                        "source": uploaded_file.name,
+                        "filename": uploaded_file.name,
+                        "page": page_number,
+                    },
+                )
+            )
+
+    finally:
+        pdf.close()
+
+    # If PyMuPDF still cannot extract meaningful text, fail clearly
+    # rather than embedding layout/decorative noise.
+    if not documents:
+        raise ValueError(
+            "No meaningful text could be extracted from this PDF. "
+            "It may be image-based or use a PDF text layer that "
+            "requires OCR."
+        )
+
+    splitter = RecursiveCharacterTextSplitter(
+        chunk_size=800,
+        chunk_overlap=100,
+    )
+
+    return splitter.split_documents(documents)
+
+
+
+@st.cache_resource
+def build_vectorstore(_chunks, cache_key):
+    """
+    Build and cache an in-memory Chroma vectorstore.
+
+    _chunks is deliberately prefixed with an underscore so Streamlit
+    does not attempt to hash LangChain Document objects. cache_key
+    makes the cache change when a different PDF is uploaded.
+    """
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-3-small",
+        api_key=os.environ["OPENAI_API_KEY"],
+    )
+
+    return Chroma.from_documents(
+        _chunks,
+        embeddings,
+    )
+
+
+# ============================================================
+# Uploaded document session state
+# ============================================================
+
+if "vectorstore" not in st.session_state:
+    st.session_state.vectorstore = None
+
+if "uploaded_filenames" not in st.session_state:
+    st.session_state.uploaded_filenames = []
+
+if "chunk_count" not in st.session_state:
+    st.session_state.chunk_count = 0
+
+if "uploaded_file_signature" not in st.session_state:
+    st.session_state.uploaded_file_signature = None
 
 # ============================================================
 # Sidebar
 # ============================================================
 
-st.sidebar.header("⚙️ Settings")
-
-
 # ------------------------------------------------------------
-# Uploaded documents
+# Uploaded document
 # ------------------------------------------------------------
 
-uploaded_files = st.sidebar.file_uploader(
-    "📄 Upload Documents",
-    type=["pdf", "txt"],
-    accept_multiple_files=True,
+# The uploader is intentionally the first control in the sidebar.
+uploaded_file = st.sidebar.file_uploader(
+    "📄 Upload a Document",
+    type=["pdf"],
+    accept_multiple_files=False,
 )
 
+if uploaded_file is None:
 
-if uploaded_files:
-
-    chunks = load_and_split(
-        uploaded_files
+    st.sidebar.info(
+        "Upload a PDF to enable document Q&A."
     )
 
-    if chunks:
+else:
 
-        embeddings = OpenAIEmbeddings(
-            model="text-embedding-3-small",
-            api_key=OPENAI_API_KEY,
-        )
+    st.sidebar.success(
+        f"Loaded: {uploaded_file.name}"
+    )
 
-        vectorstore = Chroma.from_documents(
-            chunks,
-            embeddings,
-        )
+    # Create a stable signature for the uploaded file so that the
+    # document is only split and embedded when a genuinely new PDF
+    # is uploaded, rather than on every Streamlit rerun.
+    import hashlib
 
-        st.session_state.vectorstore = vectorstore
+    file_signature = hashlib.sha256(
+        uploaded_file.getvalue()
+    ).hexdigest()
 
-        filenames = [
-            getattr(
-                uploaded_file,
-                "name",
-                "unknown"
+    if (
+        file_signature
+        != st.session_state.uploaded_file_signature
+    ):
+
+        try:
+
+            chunks = load_and_split(
+                uploaded_file
             )
-            for uploaded_file in uploaded_files
-        ]
 
-        st.session_state.uploaded_filenames = filenames
-        st.session_state.chunk_count = len(chunks)
+            if chunks:
+
+                vectorstore = build_vectorstore(
+                    chunks,
+                    file_signature,
+                )
+
+                st.session_state.vectorstore = vectorstore
+
+                st.session_state.uploaded_filenames = [
+                    uploaded_file.name
+                ]
+
+                st.session_state.chunk_count = len(chunks)
+
+                st.session_state.uploaded_file_signature = (
+                    file_signature
+                )
+
+                st.sidebar.success(
+                    f"Ready! Indexed {len(chunks)} chunks."
+                )
+
+            else:
+
+                st.session_state.vectorstore = None
+                st.session_state.uploaded_filenames = []
+                st.session_state.chunk_count = 0
+                st.session_state.uploaded_file_signature = (
+                    file_signature
+                )
+
+                st.sidebar.warning(
+                    "No readable text was found in the uploaded PDF."
+                )
+
+        except Exception as exc:
+
+            st.session_state.vectorstore = None
+            st.session_state.uploaded_filenames = []
+            st.session_state.chunk_count = 0
+
+            st.sidebar.error(
+                "The PDF could not be processed. "
+                f"Error: {exc}"
+            )
+
+    elif st.session_state.vectorstore is not None:
 
         st.sidebar.success(
-            f"Ready! Indexed {len(chunks)} chunks "
-            f"from {len(filenames)} file(s)."
+            f"Ready! Indexed "
+            f"{st.session_state.chunk_count} chunks."
         )
-
-    else:
-
-        st.session_state.vectorstore = None
-        st.session_state.uploaded_filenames = []
-        st.session_state.chunk_count = 0
-
-        st.sidebar.warning(
-            "No readable text was found in the uploaded files."
-        )
-
-
-if "uploaded_filenames" not in st.session_state:
-    st.session_state.uploaded_filenames = []
-
-
-if "chunk_count" not in st.session_state:
-    st.session_state.chunk_count = 0
 
 
 if st.session_state.uploaded_filenames:
 
     st.sidebar.caption(
-        "Uploaded files:"
-    )
-
-    for filename in st.session_state.uploaded_filenames:
-
-        st.sidebar.caption(
-            f"- {filename}"
-        )
-
-    st.sidebar.caption(
-        f"Total chunks: {st.session_state.chunk_count}"
+        f"Active document: "
+        f"{st.session_state.uploaded_filenames[0]}"
     )
 
 
@@ -376,7 +492,6 @@ if st.session_state.uploaded_filenames:
 
 k_value = 4
 
-
 # ------------------------------------------------------------
 # Persona
 # ------------------------------------------------------------
@@ -384,7 +499,6 @@ k_value = 4
 st.sidebar.markdown(
     "### 🎭 Response Style"
 )
-
 
 persona_options = {
 
@@ -408,18 +522,15 @@ persona_options = {
     ),
 }
 
-
 selected_persona = st.sidebar.selectbox(
     "Select Persona",
     options=list(persona_options.keys()),
     index=0,
 )
 
-
 st.session_state.system_prompt = (
     persona_options[selected_persona]
 )
-
 
 # ------------------------------------------------------------
 # Model
@@ -429,16 +540,13 @@ st.sidebar.markdown(
     "### 🤖 Model"
 )
 
-
 model = st.sidebar.selectbox(
     "Select Model",
     ["gpt-4o-mini", "gpt-4o"],
     index=0,
 )
 
-
 temperature = 0.4
-
 
 # ------------------------------------------------------------
 # Conversation information
@@ -449,16 +557,13 @@ conversation_text = "\n".join(
     for message in st.session_state.messages
 )
 
-
 character_count = len(
     conversation_text
 )
 
-
 st.sidebar.caption(
     f"Conversation characters: {character_count}"
 )
-
 
 # ============================================================
 # Existing conversation
@@ -474,7 +579,6 @@ for message in st.session_state.messages:
             message["content"]
         )
 
-
 # ============================================================
 # Determine prompt
 # ============================================================
@@ -484,7 +588,6 @@ for message in st.session_state.messages:
 
 prompt = pending_starter_prompt
 
-
 # ============================================================
 # Chat input
 # ============================================================
@@ -493,11 +596,9 @@ chat_prompt = st.chat_input(
     "Describe your situation or ask a question..."
 )
 
-
 if chat_prompt:
 
     prompt = chat_prompt
-
 
 # ============================================================
 # Process user prompt
@@ -516,13 +617,11 @@ if prompt:
         }
     )
 
-
     with st.chat_message("user"):
 
         st.write(
             prompt
         )
-
 
     # --------------------------------------------------------
     # Check API key
@@ -531,7 +630,6 @@ if prompt:
     api_key = os.getenv(
         "OPENAI_API_KEY"
     )
-
 
     if not api_key:
 
@@ -551,7 +649,6 @@ if prompt:
 
         st.stop()
 
-
     # --------------------------------------------------------
     # Send prompt to RAG
     # --------------------------------------------------------
@@ -560,9 +657,15 @@ if prompt:
         rag_answer_query(
             prompt,
             chat_history=st.session_state.messages,
+            uploaded_vectorstore=st.session_state.get(
+                "vectorstore"
+            ),
+            uploaded_filenames=st.session_state.get(
+                "uploaded_filenames",
+                [],
+            ),
         )
     )
-
 
     # --------------------------------------------------------
     # Display assistant response
@@ -576,7 +679,6 @@ if prompt:
             assistant_response_text
         )
 
-
     # --------------------------------------------------------
     # Save assistant response
     # --------------------------------------------------------
@@ -587,7 +689,6 @@ if prompt:
             "content": assistant_response_text,
         }
     )
-
 
 # ============================================================
 # Sidebar conversation controls
@@ -604,13 +705,11 @@ if st.sidebar.button(
 
     st.rerun()
 
-
 # ============================================================
 # Download conversation
 # ============================================================
 
 chat_export = ""
-
 
 for message in st.session_state.messages:
 
@@ -621,7 +720,6 @@ for message in st.session_state.messages:
     chat_export += (
         f"{role}: {content}\n\n"
     )
-
 
 st.sidebar.download_button(
     label="Download Chat",

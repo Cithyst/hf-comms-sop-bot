@@ -306,7 +306,7 @@ with input_col2:
 
         st.write(
             """
-            Optional PDF or TXT documents provided by the user to
+            Optional PDF documents provided by the user to
             give the chatbot additional context.
             """
         )
@@ -416,10 +416,10 @@ st.markdown(
 st.write(
     """
     The chatbot uses two approved Healthcare Financing communications
-    SOPs as its primary knowledge source. The SOPs are maintained as
-    separate structured JSON files so that the chatbot can distinguish
-    between their different workflows, decision rules, roles, clearances
-    and timelines.
+    SOPs as its primary knowledge source. Both SOPs are maintained
+    within a structured JSON knowledge source so that the chatbot can
+    distinguish between their different workflows, decision rules, roles,
+    clearances and timelines.
     """
 )
 
@@ -466,13 +466,14 @@ st.markdown(
 ```mermaid
 flowchart TD
     A[User describes a scenario] --> B[Understand intent and context]
-    B --> C[Identify relevant SOP and pathway]
-    C --> D[Retrieve relevant SOP information]
-    D --> E[Apply SOP to user's scenario]
-    E --> F[Apply selected persona]
-    F --> G[Generate grounded guidance]
-    G --> H[Return response with source references]
-    """
+    B --> C[Identify relevant SOP]
+    C --> D[Identify relevant workflow or pathway]
+    D --> E[Retrieve relevant SOP information]
+    E --> F[Apply SOP to user's scenario]
+    F --> G[Apply selected persona]
+    G --> H[Generate grounded guidance]
+    H --> I[Return response with source references]
+"""
 )
 
 st.markdown(
@@ -541,7 +542,7 @@ st.markdown(
     """
 ```mermaid
 flowchart TD
-    A[User asks a question] --> B[Upload PDF or TXT document]
+    A[User asks a question] --> B[Upload PDF document]
     B --> C[Process and split document]
     C --> D[Retrieve relevant document information]
     D --> E[Retrieve relevant SOP information, where applicable]
@@ -642,7 +643,7 @@ st.write(
     """
     The chatbot was developed in **Visual Studio Code** using Python
     and **Streamlit** as the application framework. The SOP knowledge
-    is maintained as structured JSON files, while the RAG logic in
+    is maintained as a structured JSON file, while the RAG logic in
     `rag.py` retrieves and processes relevant SOP information alongside
     user-provided context. The application is deployed through
     Streamlit to provide an interactive web-based chatbot interface.

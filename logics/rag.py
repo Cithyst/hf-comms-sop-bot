@@ -13,7 +13,7 @@ Supports two related but distinct SOPs:
 The chatbot first determines which SOP applies to the user's situation,
 then identifies the relevant pathway within that SOP.
 
-The bot uses ONLY the approved SOP JSON files in the Data folder.
+The bot uses ONLY the approved combined SOP JSON in the Data folder.
 """
 
 from __future__ import annotations
@@ -21,260 +21,54 @@ from __future__ import annotations
 import json
 import os
 import re
-import streamlit as st
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from openai import OpenAI
 
 
-# ============================================================================
-# Configuration
-# ============================================================================
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+SOP_FILE = BASE_DIR / "data" / "healthcare_comms_sops.json"
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
-# ============================================================================
-# Loading
-# ============================================================================
+# ----------------------------- Loading -----------------------------
 
-def resolve_sop_files() -> List[Path]:
-    """
-    Resolve the SOP JSON files to load.
-
-    If SOP_FILES environment variable is provided, use those files.
-
-    Otherwise, look for the two approved SOP files in the Data folder.
-    """
-
-    env_path = os.getenv("SOP_FILES")
-
-    if env_path:
-        candidates = [
-            Path(p).expanduser()
-            for p in env_path.split(os.pathsep)
-            if p
-        ]
-
-        found = [
-            candidate
-            for candidate in candidates
-            if candidate.exists()
-        ]
-
-        if found:
-            return found
-
-    candidates = [
-        BASE_DIR / "Data" / "media_workflow_sop.json",
-        BASE_DIR / "Data" / "workflow_sharing_hf_comms_2024.json",
-    ]
-
-    found = [
-        candidate
-        for candidate in candidates
-        if candidate.exists()
-    ]
-
-    if found:
-        return found
-
-    raise FileNotFoundError(
-        "SOP files not found. Checked: "
-        + ", ".join(str(c) for c in candidates)
-        + ". Place the SOP JSON files inside the Data folder."
-    )
-
-
-SOP_FILES = resolve_sop_files()
-
-
-def load_sop(path: Path) -> Dict[str, Any]:
-    """Load one SOP JSON file."""
-
-    if not path.exists():
+def load_sop() -> Dict[str, Any]:
+    if not SOP_FILE.exists():
         raise FileNotFoundError(
-            f"SOP file not found: {path}"
+            f"SOP file not found: {SOP_FILE}. "
+            "Place healthcare_comms_sops.json inside the data folder."
         )
 
-    with path.open("r", encoding="utf-8") as f:
+    with SOP_FILE.open("r", encoding="utf-8") as f:
         return json.load(f)
 
 
-SOP_DOCUMENTS = [
-    load_sop(path)
-    for path in SOP_FILES
-]
+SOP_DATA = load_sop()
 
-
-# ============================================================================
-# SOP Identification
-# ============================================================================
-
-def sop_identifier(sop: Dict[str, Any]) -> str:
-    """
-    Identify which SOP the JSON represents.
-
-    Supports both JSON structures:
-
-    2024 Sharing SOP:
-        Metadata is at the top level.
-
-    2025 Media Materials SOP:
-        Metadata may be nested under "document".
-    """
-
-    document = sop.get("document", {})
-
-    title = (
-        sop.get("title")
-        or document.get("title")
-        or ""
-    ).lower()
-
-    document_id = (
-        sop.get("document_id")
-        or document.get("document_id")
-        or ""
-    ).lower()
-
-    # ------------------------------------------------------------------
-    # Explicit document ID
-    # ------------------------------------------------------------------
-
-    if "hf_comms_sharing_cpfb_moh_2024" in document_id:
-        return "sharing_2024"
-
-    # ------------------------------------------------------------------
-    # 2024 Sharing SOP
-    # ------------------------------------------------------------------
-
-    if (
-        "sharing" in title
-        and "healthcare financing" in title
-    ):
-        return "sharing_2024"
-
-    # ------------------------------------------------------------------
-    # 2025 Media Materials SOP
-    # ------------------------------------------------------------------
-
-    if (
-        "preparation" in title
-        and "issuance" in title
-    ):
-        return "preparation_2025"
-
-    if "media materials" in title:
-        return "preparation_2025"
-
-    # ------------------------------------------------------------------
-    # Fallback
-    # ------------------------------------------------------------------
-
-    return document_id or "unknown"
-
-
-def build_sop_catalog() -> List[Dict[str, Any]]:
-    """
-    Build a common catalogue for all loaded SOPs.
-    """
-
-    catalog = []
-
-    for sop in SOP_DOCUMENTS:
-        document = sop.get("document", {})
-
-        title = (
-            sop.get("title")
-            or document.get("title")
-            or "SOP"
-        )
-
-        sop_id = sop_identifier(sop)
-
-        catalog.append(
-            {
-                "id": sop_id,
-                "title": title,
-                "sop": sop,
-            }
-        )
-
-    return catalog
-
-
-SOP_CATALOG = build_sop_catalog()
-
-
-# ============================================================================
-# OpenAI Client
-# ============================================================================
 
 def get_client() -> OpenAI:
-    """Create the OpenAI client."""
-
     api_key = os.getenv("OPENAI_API_KEY")
 
-    # Use Streamlit secrets when running on Streamlit Cloud
     if not api_key:
-        api_key = st.secrets.get("OPENAI_API_KEY")
-
-    if not api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY is not set."
-        )
+        raise RuntimeError("OPENAI_API_KEY is not set.")
 
     return OpenAI(api_key=api_key)
 
 
-
-
-# ============================================================================
-# General Helpers
-# ============================================================================
+# ----------------------------- Helpers -----------------------------
 
 def normalise(text: str) -> str:
-    """
-    Normalise text for keyword matching.
-    """
-
     text = text.lower().replace("&", " and ")
-
-    text = re.sub(
-        r"[^a-z0-9\s/-]",
-        " ",
-        text,
-    )
-
-    return re.sub(
-        r"\s+",
-        " ",
-        text,
-    ).strip()
+    text = re.sub(r"[^a-z0-9\s/-]", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
-def contains_any(
-    text: str,
-    phrases: List[str],
-) -> bool:
-    """
-    Return True if any phrase is present in the normalised text.
-    """
-
+def contains_any(text: str, phrases: List[str]) -> bool:
     text = normalise(text)
+    return any(normalise(p) in text for p in phrases)
 
-    return any(
-        normalise(p) in text
-        for p in phrases
-    )
-
-
-# ============================================================================
-# Existing 2025 SOP Classification Signals
-# ============================================================================
 
 OPERATION_SIGNALS = [
     "operation-related",
@@ -290,7 +84,6 @@ OPERATION_SIGNALS = [
     "cpfb operational",
 ]
 
-
 POLICY_SIGNALS = [
     "policy-related",
     "policy related",
@@ -303,7 +96,6 @@ POLICY_SIGNALS = [
     "policy matters",
 ]
 
-
 JOINT_SIGNALS = [
     "joint",
     "jointly developed",
@@ -314,7 +106,6 @@ JOINT_SIGNALS = [
     "joint product",
     "joint products",
 ]
-
 
 CPFB_INPUT_SIGNALS = [
     "cpfb input",
@@ -331,7 +122,6 @@ CPFB_INPUT_SIGNALS = [
     "seeking cpfb input",
     "cpf inputs",
 ]
-
 
 MEDIA_SIGNALS = [
     "media query",
@@ -352,7 +142,6 @@ MEDIA_SIGNALS = [
     "anticipated media queries",
 ]
 
-
 DRUMS_SIGNALS = [
     "drums",
     "mistruth",
@@ -361,7 +150,6 @@ DRUMS_SIGNALS = [
     "member post on social media",
     "member posts on social media",
 ]
-
 
 SLA_SIGNALS = [
     "sla",
@@ -374,15 +162,59 @@ SLA_SIGNALS = [
 ]
 
 
-# ============================================================================
-# Existing 2025 Pathway Classification
-# ============================================================================
+# Signals that strongly point to the 2024 Healthcare Financing Comms
+# Sharing SOP rather than the 2025 Media Materials Preparation & Issuance SOP.
+COMMS_SHARING_2024_SIGNALS = [
+    "cpf website",
+    "cpf website update",
+    "cpf website changes",
+    "cshl website",
+    "website contents",
+    "static contents",
+    "static content",
+    "faqs",
+    "faq",
+    "eDM",
+    "edm",
+    "digital notification",
+    "digital notifications",
+    "hardcopy notification",
+    "hardcopy notifications",
+    "hardcopy collateral",
+    "hardcopy collaterals",
+    "digital collateral",
+    "digital collaterals",
+    "social media post",
+    "social media posts",
+    "website hosting",
+    "cpfb comms channels",
+    "cpf comms channels",
+    "comms materials requiring changes",
+    "moh-generated comms materials",
+    "comms material sharing",
+    "comms materials sharing",
+    "comms sharing",
+    "sharing of healthcare financing comms materials",
+]
+
+MEDIA_2025_SIGNALS = MEDIA_SIGNALS + [
+    "preparation and issuance",
+    "preparation of media materials",
+    "issuance of media materials",
+    "media materials",
+    "media material",
+    "press release",
+    "journalist",
+    "interview request",
+    "podcast",
+    "broadcast",
+    "media factsheet",
+]
+
+
+# --------------------------- Classification ------------------------
 
 def keyword_scores(query: str) -> Dict[str, int]:
-    """
-    Score the existing 2025 SOP pathways.
-    """
-
     text = normalise(query)
 
     return {
@@ -390,12 +222,10 @@ def keyword_scores(query: str) -> Dict[str, int]:
             normalise(x) in text
             for x in OPERATION_SIGNALS
         ),
-
         "policy_related": sum(
             normalise(x) in text
             for x in POLICY_SIGNALS
         ),
-
         "joint": sum(
             normalise(x) in text
             for x in JOINT_SIGNALS
@@ -406,16 +236,10 @@ def keyword_scores(query: str) -> Dict[str, int]:
 def strong_keyword_category(
     query: str,
 ) -> Optional[str]:
-    """
-    Determine whether the 2025 pathway can be identified
-    confidently using deterministic keywords.
-    """
 
     scores = keyword_scores(query)
 
-    highest = max(
-        scores.values()
-    )
+    highest = max(scores.values())
 
     if highest == 0:
         return None
@@ -429,8 +253,6 @@ def strong_keyword_category(
     if len(winners) != 1:
         return None
 
-    # Do not classify a question as policy-related merely because
-    # it says "policy" once.
     if (
         winners[0] == "policy_related"
         and highest == 1
@@ -455,55 +277,80 @@ def strong_keyword_category(
     return winners[0]
 
 
-# ============================================================================
-# LLM Classification Within the 2025 SOP
-# ============================================================================
-
 def llm_classify(
     query: str,
 ) -> Dict[str, Any]:
-    """
-    Use the LLM when the 2025 pathway is ambiguous.
+    """Use the LLM when deterministic classification is ambiguous.
+
+    The first decision is which of the two approved SOPs applies. The
+    second decision identifies the pathway within that SOP.
     """
 
     client = get_client()
 
     prompt = f"""
-Classify this question for the CPFB-MOH Healthcare Financing media workflow SOP.
+Classify this question using ONLY the two approved CPFB-MOH Healthcare
+Financing SOPs supplied to the chatbot.
 
-Choose exactly ONE category:
+There are TWO DISTINCT SOPs:
 
-- operation_related:
-  Operational matters concerning administration of healthcare schemes by CPFB,
-  e.g. member interaction with CPFB service staff.
+SOP A - 2024 Healthcare Financing Comms Sharing SOP:
+"Workflow for Sharing of Healthcare Financing Comms Materials btw CPFB & MOH"
+Use this when the question is about sharing, updating, clearing, creating
+or disseminating healthcare financing communications materials on CPFB
+channels, including CPF/CSHL websites, FAQs, static contents, notifications,
+collaterals, infographics, social posts, eDMs and videos. It also covers
+MOH-generated communications materials that do not require changes on CPFB
+channels.
 
-- policy_related:
-  Policy announcements on financing schemes concerning CPFB,
-  e.g. scheme changes or MediShield Life review.
-
-- joint:
-  Products/materials jointly developed by MOH and CPFB.
-
-- general:
-  General SOP question or insufficient information.
-
-Also identify:
-
-1. Whether CPFB inputs are explicitly required.
-2. Whether the case may be covered by an existing SOP such as DRUMS.
-3. Whether the user asks about SLA/timing.
+SOP B - 2025 Healthcare Financing Media Materials SOP:
+"Workflow for Preparation & Issuance of Media Materials for Healthcare
+Financing Schemes"
+Use this when the question concerns preparation/issuance of MEDIA MATERIALS,
+including media queries, press releases, journalists, interviews, podcasts,
+broadcasts and media factsheets, and the operation-related, policy-related
+and joint pathways.
 
 IMPORTANT:
-A scheme name by itself is NOT enough to classify a case as policy-related.
+- Do NOT choose the 2025 SOP merely because a healthcare scheme is mentioned.
+- A question about a CPF/CSHL website, FAQ, static content, eDM, social post,
+  notification or CPFB comms-channel update normally belongs to the 2024 SOP.
+- A media query, journalist, press release, interview, podcast, broadcast or
+  media factsheet normally belongs to the 2025 SOP.
+- If the question is ambiguous, choose "ambiguous" and explain what needs
+  clarification rather than guessing.
+- If the user asks about a general concept common to both SOPs, choose the SOP
+  that best matches the concrete scenario; if there is no scenario, choose
+  "ambiguous".
+
+For SOP A, choose one pathway:
+- "2024_general_cpf_channel_change"
+- "2024_one_hfg_department"
+- "2024_multiple_hfg_departments"
+- "2024_cpfb_triggered_social_media"
+- "2024_moh_generated_no_cpf_channel_change"
+- "2024_general"
+
+For SOP B, choose one pathway:
+- "operation_related"
+- "policy_related"
+- "joint"
+- "general"
+
+Also identify:
+1. Whether CPFB inputs are explicitly required.
+2. Whether the case may be covered by DRUMS or another existing SOP.
+3. Whether the user asks about SLA/timing.
 
 Return ONLY valid JSON:
-
 {{
-  "category": "operation_related|policy_related|joint|general",
+  "sop": "2024_hf_comms_sharing|2025_media_materials_preparation_issuance|ambiguous",
+  "pathway": "2024_general_cpf_channel_change|2024_one_hfg_department|2024_multiple_hfg_departments|2024_cpfb_triggered_social_media|2024_moh_generated_no_cpf_channel_change|2024_general|operation_related|policy_related|joint|general",
   "cpfb_inputs_required": true,
   "possible_existing_sop": false,
   "sla_question": false,
-  "reason": "short reason"
+  "reason": "short reason",
+  "clarification_needed": ""
 }}
 
 Question:
@@ -535,907 +382,757 @@ Question:
 
     try:
         result = json.loads(raw)
-
     except json.JSONDecodeError:
         result = {}
 
-    category = result.get(
-        "category",
-        "general",
-    )
+    sop = result.get("sop", "ambiguous")
+    if sop not in {
+        "2024_hf_comms_sharing",
+        "2025_media_materials_preparation_issuance",
+        "ambiguous",
+    }:
+        sop = "ambiguous"
 
-    if category not in {
+    valid_pathways = {
+        "2024_general_cpf_channel_change",
+        "2024_one_hfg_department",
+        "2024_multiple_hfg_departments",
+        "2024_cpfb_triggered_social_media",
+        "2024_moh_generated_no_cpf_channel_change",
+        "2024_general",
         "operation_related",
         "policy_related",
         "joint",
         "general",
-    }:
-        category = "general"
+    }
+
+    pathway = result.get("pathway", "general")
+    if pathway not in valid_pathways:
+        pathway = "general"
+
+    if sop == "ambiguous":
+        pathway = "general"
 
     return {
-        "category": category,
-
+        "sop": sop,
+        "category": pathway,
+        "pathway": pathway,
         "cpfb_inputs_required": bool(
             result.get(
                 "cpfb_inputs_required",
-                contains_any(
-                    query,
-                    CPFB_INPUT_SIGNALS,
-                ),
+                contains_any(query, CPFB_INPUT_SIGNALS),
             )
         ),
-
         "possible_existing_sop": bool(
             result.get(
                 "possible_existing_sop",
-                contains_any(
-                    query,
-                    DRUMS_SIGNALS,
-                ),
+                contains_any(query, DRUMS_SIGNALS),
             )
         ),
-
         "sla_question": bool(
             result.get(
                 "sla_question",
-                contains_any(
-                    query,
-                    SLA_SIGNALS,
-                ),
+                contains_any(query, SLA_SIGNALS),
             )
         ),
-
-        "reason": result.get(
-            "reason",
+        "reason": result.get("reason", ""),
+        "clarification_needed": result.get(
+            "clarification_needed",
             "",
         ),
     }
 
 
-# ============================================================================
-# SOP Selection
-# ============================================================================
-
-def classify_sop(
-    query: str,
-) -> Dict[str, Any]:
-    """
-    Determine which of the two Healthcare Financing SOPs is most relevant.
-
-    This is the FIRST classification step.
-
-    The distinction is based on what the user is trying to do,
-    rather than merely matching words such as "policy", "media",
-    "healthcare financing" or a scheme name.
-    """
-
+def _score_sop_keywords(query: str) -> Dict[str, int]:
     text = normalise(query)
 
-    # ------------------------------------------------------------------
-    # Strong indicators for the 2025 Media Materials SOP
-    # ------------------------------------------------------------------
-
-    media_material_signals = [
-        "press release",
-        "press releases",
-        "media query",
-        "media queries",
-        "media response",
-        "media responses",
-        "journalist",
-        "journalists",
-        "media outlet",
-        "media outlets",
-        "interview request",
-        "interview requests",
-        "podcast",
-        "broadcast",
-        "media factsheet",
-        "media factsheets",
-        "media material",
-        "media materials",
-        "media statement",
-        "press statement",
-        "anticipated media query",
-        "anticipated media queries",
-        "issue a press release",
-        "issuing a press release",
-        "respond to media",
-        "respond to a media query",
-    ]
-
-    # ------------------------------------------------------------------
-    # Strong indicators for the 2024 Sharing SOP
-    # ------------------------------------------------------------------
-
-    sharing_signals = [
-        "cpfb website",
-        "cshl website",
-        "cpf website",
-        "website static content",
-        "website static contents",
-        "static content",
-        "static contents",
-        "faq",
-        "faqs",
-        "frontliner",
-        "frontliners",
-        "notification",
-        "notifications",
-        "collateral",
-        "collaterals",
-        "aem",
-        "nice 2.0",
-        "acs",
-        "eservice",
-        "e-service",
-        "calculator",
-        "healthcare dashboard",
-        "dashboard",
-        "update the website",
-        "update website",
-        "website update",
-        "website updates",
-        "website changes",
-        "changes on cpfb",
-        "changes on cpfb channels",
-        "cpfb comms channel",
-        "cpfb comms channels",
-        "cpfb channel",
-        "cpfb channels",
-        "sharing of comms materials",
-        "sharing comms materials",
-        "share comms materials",
-        "disseminate",
-        "dissemination",
-        "new social media comms",
-        "new social media material",
-        "new social media materials",
-        "social media post",
-        "social media posts",
-        "social media content",
-        "edm",
-        "edms",
-        "electronic direct mailer",
-        "electronic direct mailers",
-        "video",
-        "videos",
-        "hardcopy",
-        "hardcopy materials",
-        "leaflet",
-        "leaflets",
-        "handbook",
-        "handbooks",
-    ]
-
-    media_score = sum(
-        1
-        for signal in media_material_signals
-        if normalise(signal) in text
-    )
-
-    sharing_score = sum(
-        1
-        for signal in sharing_signals
-        if normalise(signal) in text
-    )
-
-    # ------------------------------------------------------------------
-    # Strong deterministic result
-    # ------------------------------------------------------------------
-
-    if (
-        media_score > 0
-        and sharing_score == 0
-    ):
-        return {
-            "selected_sop": "preparation_2025",
-            "confidence": "high",
-            "reason": (
-                "The question explicitly concerns "
-                "media-material preparation or issuance."
-            ),
-        }
-
-    if (
-        sharing_score > 0
-        and media_score == 0
-    ):
-        return {
-            "selected_sop": "sharing_2024",
-            "confidence": "high",
-            "reason": (
-                "The question concerns CPFB communications "
-                "channels, website updates, FAQs, frontliners "
-                "or sharing/updating comms materials."
-            ),
-        }
-
-    # ------------------------------------------------------------------
-    # If both are possible, ask the LLM
-    # ------------------------------------------------------------------
-
-    client = get_client()
-
-    prompt = f"""
-You are selecting between TWO related but distinct CPFB-MOH
-Healthcare Financing SOPs.
-
-===============================================================
-SOP 1 — 2024 Healthcare Financing Comms Sharing SOP
-===============================================================
-
-Title:
-"Workflow for Sharing of Healthcare Financing Comms Materials btw CPFB & MOH"
-
-This SOP primarily covers:
-
-- sharing and dissemination of Healthcare Financing comms materials
-- materials requiring changes on CPFB communications channels
-- CPF website content
-- CSHL website content
-- FAQs
-- static contents
-- notifications
-- collaterals
-- social media materials
-- eDMs
-- videos
-- CPFB frontliner dissemination
-- CPF-COM development of new CPFB communications assets
-- editorial changes to existing CPFB communications materials
-- MOH-generated materials that do not require changes on CPFB channels
-
-
-===============================================================
-SOP 2 — 2025 Healthcare Financing Media Materials SOP
-===============================================================
-
-Title:
-"Workflow for Preparation & Issuance of Media Materials for Healthcare Financing Schemes"
-
-This SOP primarily covers media-material preparation and issuance,
-including matters such as:
-
-- press releases
-- media queries
-- interview requests
-- journalists / media outlets
-- media responses
-- media-material preparation
-- media-material clearance
-- related media workflows
-
-
-===============================================================
-IMPORTANT DISTINCTION
-===============================================================
-
-Do NOT select an SOP merely because the question contains:
-
-- "policy"
-- "healthcare financing"
-- "communications"
-- "media"
-- a healthcare scheme name
-
-Instead, determine WHAT THE USER IS ACTUALLY TRYING TO DO.
-
-Examples:
-
-Example 1:
-"We need to update the CareShield Life FAQ on the CPF website."
-
-→ 2024 Sharing SOP
-
-Example 2:
-"MOH is preparing a press release about CareShield Life."
-
-→ 2025 Media Materials SOP
-
-Example 3:
-"We need to prepare a new social media post about a healthcare
-financing policy."
-
-→ Consider the purpose and workflow carefully. Do not automatically
-assume the 2025 Media Materials SOP just because it involves
-communications.
-
-If the scenario genuinely involves both workflows, return "both".
-
-If the scenario is too ambiguous, return "unclear".
-
-
-Return ONLY valid JSON:
-
-{{
-  "selected_sop": "sharing_2024|preparation_2025|both|unclear",
-  "confidence": "high|medium|low",
-  "reason": "short explanation"
-}}
-
-Question:
-{query}
-"""
-
-    response = client.responses.create(
-        model=MODEL,
-        instructions=(
-            "Return only valid JSON. "
-            "No markdown fences."
-        ),
-        input=prompt,
-    )
-
-    raw = response.output_text.strip()
-
-    raw = re.sub(
-        r"^```(?:json)?\s*",
-        "",
-        raw,
-    )
-
-    raw = re.sub(
-        r"\s*```$",
-        "",
-        raw,
-    )
-
-    try:
-        result = json.loads(raw)
-
-    except json.JSONDecodeError:
-        return {
-            "selected_sop": "unclear",
-            "confidence": "low",
-            "reason": (
-                "Unable to reliably determine the applicable SOP."
-            ),
-        }
-
-    selected = result.get(
-        "selected_sop",
-        "unclear",
-    )
-
-    if selected not in {
-        "sharing_2024",
-        "preparation_2025",
-        "both",
-        "unclear",
-    }:
-        selected = "unclear"
-
     return {
-        "selected_sop": selected,
-        "confidence": result.get(
-            "confidence",
-            "medium",
+        "2024_hf_comms_sharing": sum(
+            normalise(x) in text
+            for x in COMMS_SHARING_2024_SIGNALS
         ),
-        "reason": result.get(
-            "reason",
-            "",
+        "2025_media_materials_preparation_issuance": sum(
+            normalise(x) in text
+            for x in MEDIA_2025_SIGNALS
         ),
     }
 
 
-# ============================================================================
-# Overall Classification
-# ============================================================================
+def _deterministic_sop(query: str) -> Optional[str]:
+    scores = _score_sop_keywords(query)
+    highest = max(scores.values())
+
+    if highest == 0:
+        return None
+
+    winners = [
+        key for key, value in scores.items()
+        if value == highest
+    ]
+
+    if len(winners) != 1:
+        return None
+
+    # Require a reasonably strong signal before making the SOP decision
+    # without the LLM.
+    if highest < 1:
+        return None
+
+    return winners[0]
+
 
 def classify_query(
     query: str,
 ) -> Dict[str, Any]:
-    """
-    Perform two-level classification:
 
-    Level 1:
-        Which SOP applies?
+    sop = _deterministic_sop(query)
 
-    Level 2:
-        If the 2025 SOP applies, which pathway applies?
-    """
+    # If the wording clearly points to one SOP, retain the fast deterministic
+    # behaviour. For the 2025 SOP we can also retain the existing pathway
+    # keyword classifier.
+    if sop == "2025_media_materials_preparation_issuance":
+        category = strong_keyword_category(query)
 
-    # --------------------------------------------------------------
-    # First determine the applicable SOP
-    # --------------------------------------------------------------
+        if category:
+            return {
+                "sop": sop,
+                "category": category,
+                "pathway": category,
+                "cpfb_inputs_required": contains_any(
+                    query,
+                    CPFB_INPUT_SIGNALS,
+                ),
+                "possible_existing_sop": contains_any(
+                    query,
+                    DRUMS_SIGNALS,
+                ),
+                "sla_question": contains_any(
+                    query,
+                    SLA_SIGNALS,
+                ),
+                "reason": (
+                    "2025 Media Materials SOP identified from "
+                    "clear media-workflow terminology."
+                ),
+            }
 
-    sop_selection = classify_sop(query)
+    # For 2024, ask the LLM for the exact workflow because the SOP contains
+    # several different CPFB-channel pathways.
+    # For ambiguous cases, the LLM decides which SOP applies.
+    result = llm_classify(query)
 
-    # --------------------------------------------------------------
-    # Then determine the existing 2025 pathway where relevant
-    # --------------------------------------------------------------
-
-    category = strong_keyword_category(query)
-
-    if category:
-        pathway_classification = {
-            "category": category,
-
-            "cpfb_inputs_required": contains_any(
-                query,
-                CPFB_INPUT_SIGNALS,
-            ),
-
-            "possible_existing_sop": contains_any(
-                query,
-                DRUMS_SIGNALS,
-            ),
-
-            "sla_question": contains_any(
-                query,
-                SLA_SIGNALS,
-            ),
-
-            "reason": (
-                "Clear pathway identified from "
-                "SOP terminology."
-            ),
-        }
-
-    else:
-        pathway_classification = llm_classify(query)
-
-    # --------------------------------------------------------------
-    # Combine
-    # --------------------------------------------------------------
-
-    pathway_classification["sop_selection"] = sop_selection
-
-    return pathway_classification
+    return result
 
 
-# ============================================================================
-# SOP Summarisation
-# ============================================================================
+# ------------------------------ Retrieval ---------------------------
 
-def summarise_sop(
-    sop: Dict[str, Any],
+def get_selected_sop(
     sop_id: str,
 ) -> Dict[str, Any]:
-    """
-    Convert either SOP JSON structure into a common retrieval structure.
-    """
-
-    document = sop.get(
-        "document",
-        {},
+    return (
+        SOP_DATA
+        .get("sops", {})
+        .get(sop_id, {})
     )
 
-    title = (
-        sop.get("title")
-        or document.get("title")
-        or "SOP"
+
+def category_definition(
+    category: str,
+) -> Optional[Dict[str, Any]]:
+
+    sop = get_selected_sop(
+        "2025_media_materials_preparation_issuance"
     )
 
-    status = (
-        sop.get("status")
-        or document.get("status")
+    categories = (
+        sop
+        .get("slides", {})
+        .get("4", {})
+        .get("categories", [])
     )
 
-    updated_as_at = (
-        sop.get("updated_as_at")
-        or document.get("updated_as_at")
-        or document.get("date")
+    return next(
+        (
+            x
+            for x in categories
+            if x.get("id") == category
+        ),
+        None,
     )
 
-    # ==================================================================
-    # 2024 Sharing SOP
-    # ==================================================================
 
-    if sop_id == "sharing_2024":
+def high_level_workflow(
+    category: str,
+) -> Optional[Dict[str, Any]]:
 
-        return {
-            "id": sop_id,
+    sop = get_selected_sop(
+        "2025_media_materials_preparation_issuance"
+    )
 
-            "sop_name": (
-                "2024 Healthcare Financing "
-                "Comms Sharing SOP"
-            ),
+    workflows = (
+        sop
+        .get("slides", {})
+        .get("7", {})
+        .get("workflows", [])
+    )
 
-            "title": title,
-
-            "status": status,
-
-            "updated_as_at": updated_as_at,
-
-            "scope": sop.get(
-                "scope",
-            ),
-
-            "aim_and_background": sop.get(
-                "aim_and_background",
-                {},
-            ),
-
-            "decision_framework": sop.get(
-                "decision_framework",
-                {},
-            ),
-
-            "materials": sop.get(
-                "materials",
-                {},
-            ),
-
-            "roles": sop.get(
-                "roles",
-                {},
-            ),
-
-            "workflows": sop.get(
-                "workflows",
-                {},
-            ),
-
-            "clearance_rules": sop.get(
-                "clearance_rules",
-                {},
-            ),
-
-            "sla_summary": sop.get(
-                "sla_summary",
-                {},
-            ),
-
-            "checklists": sop.get(
-                "checklists",
-                {},
-            ),
-
-            "content_ownership": sop.get(
-                "content_ownership",
-                {},
-            ),
-
-            "document_relationship": sop.get(
-                "document_relationship",
-                {},
-            ),
-
-            "bot_instructions": sop.get(
-                "bot_instructions",
-                {},
-            ),
-
-            "source_slides": sop.get(
-                "source_slides",
-                [],
-            ),
-        }
-
-    # ==================================================================
-    # 2025 Media Materials SOP
-    # ==================================================================
-
-    return {
-        "id": sop_id,
-
-        "sop_name": (
-            "2025 Healthcare Financing "
-            "Media Materials SOP"
+    return next(
+        (
+            x
+            for x in workflows
+            if x.get("id") == category
         ),
+        None,
+    )
 
-        "title": title,
 
-        "status": status,
+def detailed_workflow(
+    category: str,
+) -> Optional[Dict[str, Any]]:
 
-        "date": document.get(
-            "date",
-        ),
+    sop = get_selected_sop(
+        "2025_media_materials_preparation_issuance"
+    )
 
-        "source": document.get(
-            "source",
-        ),
-
-        "notes": document.get(
-            "notes",
-            [],
-        ),
-
-        "media_material_definition": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "3",
-                {},
-            )
-        ),
-
-        "decision_framework": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "4",
-                {},
-            )
-        ),
-
-        "overarching_roles": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "5",
-                {},
-            )
-        ),
-
-        "roles": sop.get(
-            "roles",
-            [],
-        ),
-
-        "high_level_workflow": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "7",
-                {},
-            )
-        ),
-
-        "detailed_workflow": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "9",
-                {},
-            )
-        ),
-
-        "policy_workflow": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "11",
-                {},
-            )
-        ),
-
-        "joint_workflow": (
-            sop.get(
-                "slides",
-                {},
-            ).get(
-                "13",
-                {},
-            )
-        ),
+    slide_map = {
+        "operation_related": "9",
+        "policy_related": "11",
+        "joint": "13",
     }
 
+    slide = slide_map.get(category)
 
-# ============================================================================
-# SOP Candidate Selection
-# ============================================================================
+    return (
+        sop
+        .get("slides", {})
+        .get(slide)
+        if slide
+        else None
+    )
 
-def select_sop_candidates(
-    query: str,
-    classification: Dict[str, Any],
+
+def relevant_roles(
+    category: str,
 ) -> List[Dict[str, Any]]:
-    """
-    Select the SOP(s) identified by the SOP classifier.
 
-    If the classifier is uncertain, return both SOPs so that the
-    generation model can explain the distinction instead of guessing.
-    """
-
-    sop_selection = classification.get(
-        "sop_selection",
-        {},
+    sop = get_selected_sop(
+        "2025_media_materials_preparation_issuance"
     )
 
-    selected = sop_selection.get(
-        "selected_sop",
-        "unclear",
+    roles = sop.get(
+        "roles",
+        [],
     )
 
-    available = {
-        item["id"]: item
-        for item in SOP_CATALOG
-    }
-
-    # --------------------------------------------------------------
-    # One specific SOP
-    # --------------------------------------------------------------
-
-    if selected in {
-        "sharing_2024",
-        "preparation_2025",
-    }:
-
-        item = available.get(
-            selected,
-        )
-
-        if item:
-            return [
-                {
-                    "id": item["id"],
-                    "title": item["title"],
-                }
-            ]
-
-    # --------------------------------------------------------------
-    # Both SOPs
-    # --------------------------------------------------------------
-
-    if selected == "both":
-
-        return [
-            {
-                "id": item["id"],
-                "title": item["title"],
-            }
-            for item in SOP_CATALOG
+    if category == "operation_related":
+        wanted = [
+            "CPF-MPD",
+            "CPF-SSE",
+            "CPF-HID / CPF-HCP",
+        ]
+    else:
+        wanted = [
+            "MOH-CommsD",
+            "MOH-HF",
+            "CPF-MPD",
+            "CPF-SSE",
+            "CPF-HID / CPF-HCP",
         ]
 
-    # --------------------------------------------------------------
-    # Unclear
-    #
-    # Do not guess.
-    # Give the generation model both SOPs.
-    # --------------------------------------------------------------
+    result = []
 
-    return [
-        {
-            "id": item["id"],
-            "title": item["title"],
-        }
-        for item in SOP_CATALOG
-    ]
+    for role in roles:
+        party = normalise(
+            role.get(
+                "party",
+                "",
+            )
+        )
+
+        if any(
+            normalise(w) in party
+            or party in normalise(w)
+            for w in wanted
+        ):
+            result.append(role)
+
+    return result
 
 
-# ============================================================================
-# Retrieval
-# ============================================================================
-
-def retrieve_context(
+def retrieve_2024_context(
     query: str,
     classification: Dict[str, Any],
 ) -> Dict[str, Any]:
-    """
-    Retrieve the relevant SOP context.
+    """Retrieve the relevant parts of the 2024 comms-sharing SOP."""
 
-    Only the selected SOP(s) receive full structured content.
-    The available SOP catalogue only contains names/titles.
-    """
-
-    selected_sops = select_sop_candidates(
-        query,
-        classification,
+    sop = get_selected_sop(
+        "2024_hf_comms_sharing"
     )
 
-    selected_context = []
+    pathway = classification.get(
+        "pathway",
+        "2024_general",
+    )
 
-    for selected in selected_sops:
-
-        matching = next(
-            (
-                item
-                for item in SOP_CATALOG
-                if item["id"] == selected["id"]
-            ),
-            None,
-        )
-
-        if matching:
-
-            selected_context.append(
-                summarise_sop(
-                    matching["sop"],
-                    matching["id"],
-                )
-            )
-
-    context: Dict[str, Any] = {
-
-        "query": query,
-
-        "classification": classification,
-
-        # ----------------------------------------------------------
-        # Full context for the SOP(s) considered relevant
-        # ----------------------------------------------------------
-
-        "selected_sops": selected_context,
-
-        # ----------------------------------------------------------
-        # Catalogue of all SOPs
-        # ----------------------------------------------------------
-
-        "available_sops": [
-            {
-                "id": item["id"],
-                "title": item["title"],
-            }
-            for item in SOP_CATALOG
-        ],
-
-        # ----------------------------------------------------------
-        # Explicit distinction between the two SOPs
-        # ----------------------------------------------------------
-
-        "sop_distinction": {
-
-            "sharing_2024": (
-                "Use primarily for sharing, updating, preparing and "
-                "disseminating Healthcare Financing comms materials "
-                "involving CPFB communications channels, including "
-                "websites, FAQs, static contents, notifications, "
-                "collaterals, social media, eDMs, videos and "
-                "CPFB frontliner dissemination."
-            ),
-
-            "preparation_2025": (
-                "Use primarily for preparation and issuance of "
-                "Healthcare Financing media materials, including "
-                "press releases, media queries, interview requests "
-                "and related media workflows."
-            ),
+    context = {
+        "sop": {
+            "id": sop.get("document_id"),
+            "title": sop.get("title"),
+            "short_title": sop.get("short_title"),
+            "status": sop.get("status"),
+            "updated_as_at": sop.get("updated_as_at"),
+            "scope": sop.get("scope"),
         },
-
-        # ----------------------------------------------------------
-        # Chronological/document relationship
-        # ----------------------------------------------------------
-
-        "chronology_note": (
-            "The 2024 Sharing SOP was endorsed first. "
-            "The later 2025 Preparation & Issuance of Media Materials "
-            "SOP addresses a different media-material workflow. "
-            "Do not treat the two SOPs as interchangeable."
+        "query": query,
+        "classification": classification,
+        "decision_framework": sop.get(
+            "decision_framework",
+            {},
+        ),
+        "materials": sop.get(
+            "materials",
+            {},
+        ),
+        "clearance_rules": sop.get(
+            "clearance_rules",
+            {},
+        ),
+        "content_ownership": sop.get(
+            "content_ownership",
+            {},
+        ),
+        "sla_summary": sop.get(
+            "sla_summary",
+            {},
+        ),
+        "bot_instructions": sop.get(
+            "bot_instructions",
+            {},
         ),
     }
 
-    # --------------------------------------------------------------
-    # Existing SOP warning
-    # --------------------------------------------------------------
+    workflows = sop.get(
+        "workflows",
+        {},
+    )
 
-    if classification.get(
-        "possible_existing_sop",
-    ):
+    workflow_key = {
+        "2024_general_cpf_channel_change":
+            "general_cpf_channel_change",
+        "2024_one_hfg_department":
+            "one_hfg_department",
+        "2024_multiple_hfg_departments":
+            "multiple_hfg_departments",
+        "2024_cpfb_triggered_social_media":
+            "cpfb_triggered_social_media",
+        "2024_moh_generated_no_cpf_channel_change":
+            "moh_generated_no_cpf_channel_change",
+    }.get(pathway)
 
-        context["existing_sop_warning"] = (
-            "The scenario may also overlap with another existing "
-            "workflow such as DRUMS for social-media mistruths."
+    if workflow_key:
+        context["selected_workflow"] = workflows.get(
+            workflow_key
+        )
+
+    # If the exact pathway is uncertain, provide all pathway names and their
+    # decision logic, rather than inventing a workflow.
+    if pathway == "2024_general":
+        context["workflow_options"] = workflows
+
+    # The 2024 JSON stores the source references separately from individual
+    # workflow objects, so retain them for answer citation.
+    context["source_slides"] = sop.get(
+        "source_slides",
+        [],
+    )
+
+    return context
+
+
+def retrieve_2025_context(
+    query: str,
+    classification: Dict[str, Any],
+) -> Dict[str, Any]:
+    """Retrieve the relevant parts of the 2025 media-materials SOP."""
+
+    sop = get_selected_sop(
+        "2025_media_materials_preparation_issuance"
+    )
+
+    category = classification.get(
+        "category",
+        "general",
+    )
+
+    context: Dict[str, Any] = {
+        "sop": sop.get(
+            "document",
+            {},
+        ),
+        "query": query,
+        "classification": classification,
+        "media_material_definition": (
+            sop
+            .get("slides", {})
+            .get("3", {})
+        ),
+        "sla": sop.get(
+            "sla",
+            {},
+        ),
+        "decision_rules": sop.get(
+            "decision_rules",
+            [],
+        ),
+        "exceptions_and_notes": sop.get(
+            "exceptions_and_notes",
+            [],
+        ),
+        "bot_answering_guidance": sop.get(
+            "bot_answering_guidance",
+            {},
+        ),
+    }
+
+    if category in {
+        "operation_related",
+        "policy_related",
+        "joint",
+    }:
+
+        context["decision_rule"] = (
+            category_definition(category)
+        )
+
+        context["high_level_workflow"] = (
+            high_level_workflow(category)
+        )
+
+        context["detailed_workflow"] = (
+            detailed_workflow(category)
+        )
+
+        context["relevant_roles"] = (
+            relevant_roles(category)
+        )
+
+    else:
+
+        context["decision_framework"] = (
+            sop
+            .get("slides", {})
+            .get("4", {})
+        )
+
+        context["overarching_roles"] = (
+            sop
+            .get("slides", {})
+            .get("5", {})
+        )
+
+        context["roles"] = sop.get(
+            "roles",
+            [],
         )
 
     return context
 
 
+# ------------------------------ Retrieval ---------------------------
+
+def category_definition(
+    category: str,
+) -> Optional[Dict[str, Any]]:
+
+    categories = (
+        SOP_DATA
+        .get("slides", {})
+        .get("4", {})
+        .get("categories", [])
+    )
+
+    return next(
+        (
+            x
+            for x in categories
+            if x.get("id") == category
+        ),
+        None,
+    )
+
+
+def high_level_workflow(
+    category: str,
+) -> Optional[Dict[str, Any]]:
+
+    workflows = (
+        SOP_DATA
+        .get("slides", {})
+        .get("7", {})
+        .get("workflows", [])
+    )
+
+    return next(
+        (
+            x
+            for x in workflows
+            if x.get("id") == category
+        ),
+        None,
+    )
+
+
+def detailed_workflow(
+    category: str,
+) -> Optional[Dict[str, Any]]:
+
+    slide_map = {
+        "operation_related": "9",
+        "policy_related": "11",
+        "joint": "13",
+    }
+
+    slide = slide_map.get(category)
+
+    return (
+        SOP_DATA
+        .get("slides", {})
+        .get(slide)
+        if slide
+        else None
+    )
+
+
+def relevant_roles(
+    category: str,
+) -> List[Dict[str, Any]]:
+
+    roles = SOP_DATA.get(
+        "roles",
+        [],
+    )
+
+    if category == "operation_related":
+        wanted = [
+            "CPF-MPD",
+            "CPF-SSE",
+            "CPF-HID / CPF-HCP",
+        ]
+    else:
+        wanted = [
+            "MOH-CommsD",
+            "MOH-HF",
+            "CPF-MPD",
+            "CPF-SSE",
+            "CPF-HID / CPF-HCP",
+        ]
+
+    result = []
+
+    for role in roles:
+        party = normalise(
+            role.get(
+                "party",
+                "",
+            )
+        )
+
+        if any(
+            normalise(w) in party
+            or party in normalise(w)
+            for w in wanted
+        ):
+            result.append(role)
+
+    return result
+
+
 # ============================================================================
-# Source References
+# Uploaded Document Retrieval
 # ============================================================================
+
+def retrieve_uploaded_document_context(
+    query: str,
+    uploaded_vectorstore: Any = None,
+    uploaded_filenames: Optional[List[str]] = None,
+    k: int = 4,
+) -> Dict[str, Any]:
+    """
+    Retrieve relevant chunks from the uploaded PDF vectorstore.
+
+    The vectorstore is created by Chatbot.py. It is optional and does
+    not replace the approved SOP knowledge base.
+    """
+
+    if uploaded_vectorstore is None:
+        return {
+            "active": False,
+            "filenames": uploaded_filenames or [],
+            "chunks": [],
+        }
+
+    try:
+        documents = uploaded_vectorstore.similarity_search(
+            query,
+            k=k,
+        )
+
+    except Exception as exc:
+        print(
+            f"[SOP BOT] Uploaded document retrieval error: {exc}"
+        )
+
+        return {
+            "active": True,
+            "filenames": uploaded_filenames or [],
+            "chunks": [],
+            "error": (
+                "The uploaded document could not be searched."
+            ),
+        }
+
+    chunks = []
+
+    for index, document in enumerate(
+        documents,
+        start=1,
+    ):
+
+        metadata = getattr(
+            document,
+            "metadata",
+            {},
+        ) or {}
+
+        page = metadata.get(
+            "page",
+        )
+
+        if page is None:
+            page = metadata.get(
+                "page_number",
+            )
+
+        chunks.append(
+            {
+                "chunk": index,
+                "content": getattr(
+                    document,
+                    "page_content",
+                    "",
+                ),
+                "source_file": (
+                    metadata.get("source")
+                    or metadata.get("file_name")
+                    or metadata.get("filename")
+                    or "Uploaded document"
+                ),
+                "page": page,
+            }
+        )
+
+    return {
+        "active": True,
+        "filenames": uploaded_filenames or [],
+        "chunks": chunks,
+    }
+
+
+def retrieve_context(
+    query: str,
+    classification: Dict[str, Any],
+    uploaded_vectorstore: Any = None,
+    uploaded_filenames: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+
+    sop_id = classification.get(
+        "sop",
+        "ambiguous",
+    )
+
+    if sop_id == "2024_hf_comms_sharing":
+        context = retrieve_2024_context(
+            query,
+            classification,
+        )
+
+    elif sop_id == "2025_media_materials_preparation_issuance":
+        context = retrieve_2025_context(
+            query,
+            classification,
+        )
+
+    else:
+        # Ambiguous questions receive a compact comparison of both SOPs so
+        # the LLM can explain the distinction or ask a targeted clarification.
+        sop_2024 = get_selected_sop(
+            "2024_hf_comms_sharing"
+        )
+        sop_2025 = get_selected_sop(
+            "2025_media_materials_preparation_issuance"
+        )
+
+        context = {
+            "query": query,
+            "classification": classification,
+            "sop_selection_status": "ambiguous",
+            "two_sop_distinction": {
+                "2024": {
+                    "title": sop_2024.get("title"),
+                    "scope": sop_2024.get("scope"),
+                    "decision_framework": sop_2024.get(
+                        "decision_framework",
+                        {},
+                    ),
+                    "materials": sop_2024.get(
+                        "materials",
+                        {},
+                    ),
+                },
+                "2025": {
+                    "title": sop_2025
+                    .get("document", {})
+                    .get("title"),
+                    "scope": sop_2025
+                    .get("document", {})
+                    .get("scope"),
+                    "decision_rules": sop_2025.get(
+                        "decision_rules",
+                        [],
+                    ),
+                },
+            },
+        }
+
+    if classification.get(
+        "possible_existing_sop"
+    ):
+
+        context["existing_sop_warning"] = (
+            "The 2025 Media Materials SOP states that other SOPs already "
+            "exist, including DRUMS for mistruths involving members who "
+            "post on social media. The 2024 Comms Sharing SOP should also "
+            "not be assumed to replace other applicable approved SOPs."
+        )
+
+    # Uploaded document is optional additional context.
+    context["uploaded_document"] = (
+        retrieve_uploaded_document_context(
+            query=query,
+            uploaded_vectorstore=uploaded_vectorstore,
+            uploaded_filenames=uploaded_filenames,
+            k=4,
+        )
+    )
+
+    return context
+
+
+# -------------------------- Source references -----------------------
 
 def extract_source_slides(
     context: Dict[str, Any],
 ) -> List[int]:
-    """
-    Extract source slide numbers from either SOP structure.
-
-    Supports:
-
-        "source_slide": 21
-
-    and:
-
-        "source_slides": [21, 22]
-
-    and:
-
-        "source_slides": [
-            {"slide": 21, "title": "..."}
-        ]
-
-    and nested:
-
-        {"slide": 21}
-    """
 
     slides: List[int] = []
 
@@ -1445,57 +1142,21 @@ def extract_source_slides(
 
             for key, item in value.items():
 
-                # --------------------------------------------------
-                # Single source slide
-                # --------------------------------------------------
-
                 if (
                     key == "source_slide"
                     and isinstance(item, int)
                 ):
                     slides.append(item)
 
-                # --------------------------------------------------
-                # Source slides
-                # --------------------------------------------------
-
                 elif (
                     key == "source_slides"
                     and isinstance(item, list)
                 ):
-
-                    for x in item:
-
-                        if isinstance(
-                            x,
-                            int,
-                        ):
-                            slides.append(x)
-
-                        elif (
-                            isinstance(x, dict)
-                            and isinstance(
-                                x.get("slide"),
-                                int,
-                            )
-                        ):
-                            slides.append(
-                                x["slide"]
-                            )
-
-                # --------------------------------------------------
-                # Generic slide field
-                # --------------------------------------------------
-
-                elif (
-                    key == "slide"
-                    and isinstance(item, int)
-                ):
-                    slides.append(item)
-
-                # --------------------------------------------------
-                # Continue recursively
-                # --------------------------------------------------
+                    slides.extend(
+                        x
+                        for x in item
+                        if isinstance(x, int)
+                    )
 
                 walk(item)
 
@@ -1514,7 +1175,6 @@ def extract_source_slides(
 def format_context(
     context: Dict[str, Any],
 ) -> str:
-    """Format context for the generation model."""
 
     return json.dumps(
         context,
@@ -1523,271 +1183,84 @@ def format_context(
     )
 
 
-# ============================================================================
-# Generation System Prompt
-# ============================================================================
+# ---------------------------- Generation ----------------------------
 
 SYSTEM_PROMPT = """
-You are the CPFB-MOH Healthcare Financing Comms Sharing and Media Workflow
-SOP Assistant.
+You are the CPFB-MOH Healthcare Financing Comms and Media Workflow SOP Assistant.
 
-You have access to TWO approved SOPs:
+There are TWO DISTINCT approved SOPs in the supplied knowledge base:
 
-1. 2024 Healthcare Financing Comms Sharing SOP
+1. 2024 Healthcare Financing Comms Sharing SOP:
    "Workflow for Sharing of Healthcare Financing Comms Materials btw CPFB & MOH"
 
-2. 2025 Healthcare Financing Media Materials SOP
+2. 2025 Healthcare Financing Media Materials SOP:
    "Workflow for Preparation & Issuance of Media Materials for Healthcare
    Financing Schemes"
 
-
-====================================================================
-CORE ROLE
-====================================================================
-
-Use ONLY the approved SOP context supplied to you.
-
-Do not use outside knowledge to fill gaps.
-
-Your role is to help the user understand:
-
-- which SOP applies
-- why that SOP applies
-- what workflow/pathway should be followed
-- who is involved
-- what decisions or clearances are required
-- what SLA/timing applies
-- what exceptions or related SOPs may be relevant
-- where the information comes from in the source slides
-
-
-====================================================================
-TWO-SOP DISTINCTION
-====================================================================
-
-There are TWO related but distinct SOPs in the knowledge base.
-
---------------------------------------------------------------------
-2024 Healthcare Financing Comms Sharing SOP
---------------------------------------------------------------------
-
-Title:
-
-"Workflow for Sharing of Healthcare Financing Comms Materials btw CPFB & MOH"
-
-This generally applies to:
-
-- sharing and dissemination of Healthcare Financing comms materials
-- changes to CPFB communications channels
-- CPF website
-- CSHL website
-- FAQs
-- static contents
-- notifications
-- collaterals
-- social media materials
-- eDMs
-- videos
-- CPFB frontliner dissemination
-- CPF-COM development of new CPFB communications assets
-- editorial changes to existing CPFB communications materials
-- MOH-generated materials that do not require changes on CPFB channels
-
-
---------------------------------------------------------------------
-2025 Healthcare Financing Media Materials SOP
---------------------------------------------------------------------
-
-Title:
-
-"Workflow for Preparation & Issuance of Media Materials for Healthcare
-Financing Schemes"
-
-This generally applies to:
-
-- press releases
-- media queries
-- interview requests
-- journalists
-- media outlets
-- media responses
-- media-material preparation
-- media-material clearance
-- related media-material issuance workflows
-
-
-====================================================================
-IMPORTANT SOP BOUNDARY
-====================================================================
-
-Determine the user's actual situation before selecting an SOP.
-
-Do NOT select an SOP merely because the question contains:
-
-- "policy"
-- "communications"
-- "media"
-- "healthcare financing"
-- a healthcare scheme name
-- "CPFB"
-- "MOH"
-
-A scheme name alone does NOT determine the SOP.
-
-Examples:
-
-"We need to update a CareShield Life FAQ on the CPF website."
-
-→ 2024 Sharing SOP.
-
-"MOH is preparing a press release about CareShield Life."
-
-→ 2025 Media Materials SOP.
-
-If the scenario genuinely involves both workflows, explain which part is
-covered by each SOP.
-
-If the scenario is ambiguous, do not invent an answer. Explain what is
-unclear and ask the minimum clarification needed.
-
-
-====================================================================
-TWO-LEVEL CLASSIFICATION
-====================================================================
-
-The chatbot should think about the workflow in this order:
-
-1. Determine WHICH SOP applies.
-
-2. Once the SOP is selected, determine the relevant pathway within
-   that SOP.
-
-For the 2025 Media Materials SOP, the relevant pathways may include:
-
-- operation-related
-- policy-related
-- joint
-- general
-
-Do NOT use the 2025 pathway categories to decide which SOP applies.
-
-
-====================================================================
-YOUR JOB
-====================================================================
-
-1. Identify the applicable SOP.
-
-2. Explain why the SOP applies.
-
-3. Identify the relevant pathway within that SOP where possible.
-
-4. If another SOP may also be relevant, explain the boundary between
-   the two SOPs instead of mixing their workflows.
-
-5. Walk the user through the workflow in plain language.
-
-6. Highlight key stakeholders, decision points and approvals.
-
-7. Explain the applicable SLA/timeline.
-
-8. Flag conditions, exceptions or related SOPs.
-
-9. Cite the relevant source slide number(s).
-
-
-====================================================================
-SLA RULES
-====================================================================
-
-The 2024 Sharing SOP contains specific indicative SLAs for different
-types of communications materials.
-
-Examples may include different timelines for:
-
-- FAQ updates
-- website static content
-- digital notifications
-- hardcopy notifications
-- infographics
-- eDMs
-- social media posts
-- videos
-- MOH-generated materials
-
-Do NOT automatically apply a 2024 SLA to the 2025 SOP.
-
-Likewise, do NOT automatically apply a 2025 timing expectation to
-the 2024 SOP.
-
-When giving an SLA:
-
-- identify which SOP it comes from
-- identify which material/workflow it applies to
-- do not transfer SLAs between SOPs
-- do not invent a numerical SLA
-
-The 2024 SOP also recognises that greater complexity and/or larger
-volume may require a longer SLA and that some assets may be subject
-to resource prioritisation.
-
-If the source does not provide a numerical SLA for the specific
-scenario, explicitly say so.
-
-
-====================================================================
-GROUNDING RULES
-====================================================================
-
-- Never invent responsibilities.
-- Never invent stakeholders.
-- Never invent approval levels.
-- Never invent deadlines.
-- Never invent SLAs.
-- Never mix requirements between the two SOPs.
-- Never treat the two SOPs as interchangeable.
-- A healthcare scheme name alone does not determine the workflow.
-- If information is not contained in the approved SOP context, say so.
-- Do not claim to have access to a PDF.
-- The supplied JSON files are structured transcriptions of the approved
-  source decks.
-- Use the source slides supplied in the context.
-- Do not cite a slide merely because it exists; cite slides that support
-  the answer.
-
-
-====================================================================
-SOP IDENTIFICATION IN THE RESPONSE
-====================================================================
-
-When the applicable SOP can be determined, explicitly state it near
-the beginning of the answer.
-
-Use:
-
-"Applicable SOP: 2024 Healthcare Financing Comms Sharing SOP"
-
-OR:
-
-"Applicable SOP: 2025 Healthcare Financing Media Materials SOP"
-
-If both apply:
-
-"Applicable SOPs: 2024 Healthcare Financing Comms Sharing SOP + 2025
-Healthcare Financing Media Materials SOP"
-
-If the SOP cannot be determined:
-
-"Applicable SOP: Unable to determine from the information provided."
-
-
-Then briefly explain why that SOP applies.
-
-
-====================================================================
-RESPONSE STYLE
-====================================================================
-
+The 2024 SOP covers healthcare financing communications materials and
+workflows involving CPFB communications channels, including website contents,
+FAQs, static contents, notifications, collaterals, infographics, social media,
+eDMs and videos. It also covers MOH-generated comms materials that do not
+require changes on CPFB comms channels.
+
+The 2025 SOP covers preparation and issuance of media materials, including
+operation-related, policy-related and joint pathways, as well as media
+queries, press releases, interviews, podcasts, broadcasts and media
+factsheets.
+
+Your first responsibility is to apply the CORRECT SOP. Do not mix the
+workflows of the two SOPs.
+
+If the context says the SOP selection is ambiguous:
+- explain the distinction between the two SOPs;
+- ask a targeted clarification question if one is needed;
+- do not invent a pathway.
+
+For the 2024 SOP:
+- Determine whether the material requires changes on CPFB comms channels.
+- Where relevant, distinguish one-HFG-department, multiple-HFG-department,
+  CPFB-triggered social media, and MOH-generated materials without CPFB
+  channel changes.
+- Use the 2024 SOP's actual clearance rules, content ownership, workflows
+  and material-specific SLA.
+- The 2024 SOP contains numerical SLA values for specified material types.
+  Do not replace those with a generic "no fixed SLA" statement.
+
+For the 2025 SOP:
+- Operation-related: operational matters related to administration of
+  healthcare schemes by CPFB. CPFB is the rightful owner/preparer and issuer.
+- Policy-related: policy announcements on financing schemes concerning CPFB.
+  MOH is the rightful owner/preparer and issuer.
+- Joint: products/materials jointly developed by MOH and CPFB.
+- If CPFB inputs are required for a policy-related item, use the detailed
+  policy workflow.
+- The 2025 SOP does NOT provide a fixed numerical SLA. The responsible party
+  preparing the media materials establishes the required SLA/timeline with
+  relevant parties before the workflow begins.
+- A scheme name alone does not determine the 2025 pathway.
+- If the case may be covered by an existing SOP such as DRUMS, flag this.
+
+GROUNDING RULES:
+- Use the selected approved SOP as the authoritative source for workflow,
+  responsibilities, approvals, timelines and exceptions.
+- Never invent responsibilities, stakeholders, approval levels, deadlines or
+  exceptions.
+- Do not silently reconcile differences between the two SOPs.
+- If the two SOPs contain different rules, keep them attributed to the
+  correct SOP.
+- Do not use outside knowledge to fill gaps in the approved SOP.
+- Cite the relevant original source slide number(s) where available.
+- If the source does not support an answer, say so.
+
+UPLOADED DOCUMENT RULES:
+- If an uploaded document is active, use its retrieved chunks when relevant.
+- Treat it as additional user-provided context.
+- Do not assume it overrides either approved SOP.
+- If it conflicts with an approved SOP, explicitly flag the conflict.
+- Do not claim information is in the uploaded document unless it appears in
+  the retrieved chunks.
+
+RESPONSE STYLE:
 Write in a helpful and conversational way.
 
 Do not sound like a rigid rulebook.
@@ -1809,41 +1282,10 @@ For broad questions, answer naturally and practically.
 
 Do not force a rigid template when a more natural explanation is better.
 
-
-====================================================================
-SOURCE CITATION
-====================================================================
-
-Always provide the relevant source slide(s) when the answer is based
-on specific workflow content.
-
-Use:
-
-**Source:** Slide X; Slide Y
-
-If different parts of the answer come from different SOPs, identify
-the SOP alongside the slide where helpful.
-
-Example:
-
-**Source:** 2024 Sharing SOP, Slides 21–24.
-
-
-====================================================================
-OUTSIDE-SCOPE QUESTIONS
-====================================================================
-
-If the question is not clearly about the approved SOPs:
-
-- answer only from the supplied context if possible
-- clearly say when the question is outside the SOP's direct scope
-- do not use outside knowledge to fill the gap
+For simple questions, answer directly. Do not force a template.
 """
 
 
-# ============================================================================
-# Answer Generation
-# ============================================================================
 
 def generate_answer(
     query: str,
@@ -1855,10 +1297,6 @@ def generate_answer(
 ) -> str:
 
     client = get_client()
-
-    # ------------------------------------------------------------------
-    # Conversation history
-    # ------------------------------------------------------------------
 
     history = ""
 
@@ -1875,16 +1313,12 @@ def generate_answer(
                 f"{message.get('content', '')}\n"
             )
 
-    # ------------------------------------------------------------------
-    # Retrieved source slides
-    # ------------------------------------------------------------------
-
     sources = ""
 
     if source_slides:
 
         sources = (
-            "Relevant source slides retrieved: "
+            "Relevant approved SOP source slides retrieved: "
             + ", ".join(
                 f"Slide {x}"
                 for x in source_slides
@@ -1892,9 +1326,37 @@ def generate_answer(
             + "."
         )
 
-    # ------------------------------------------------------------------
-    # Generation prompt
-    # ------------------------------------------------------------------
+    uploaded = context.get(
+        "uploaded_document",
+        {},
+    )
+
+    if uploaded.get("active"):
+
+        uploaded_files = uploaded.get(
+            "filenames",
+            [],
+        )
+
+        uploaded_note = (
+            "An uploaded document is active. "
+            "Relevant retrieved chunks are included "
+            "in the context below."
+        )
+
+        if uploaded_files:
+
+            uploaded_note += (
+                " Active uploaded file(s): "
+                + ", ".join(uploaded_files)
+                + "."
+            )
+
+    else:
+
+        uploaded_note = (
+            "No uploaded document is active."
+        )
 
     prompt = f"""
 USER QUESTION:
@@ -1907,48 +1369,13 @@ APPROVED SOP CONTEXT:
 
 {sources}
 
-IMPORTANT:
+UPLOADED DOCUMENT STATUS:
+{uploaded_note}
 
-The classification section in the approved context identifies which SOP
-the system believes is applicable.
+Answer the user's question using the approved SOP context and, where
+relevant, the retrieved uploaded-document context.
 
-Use that classification as an important retrieval signal, but verify the
-answer against the actual SOP content supplied in the context.
-
-If the selected SOP is:
-
-"sharing_2024"
-
-→ Answer primarily from the 2024 Healthcare Financing Comms Sharing SOP.
-
-If the selected SOP is:
-
-"preparation_2025"
-
-→ Answer primarily from the 2025 Healthcare Financing Media Materials SOP.
-
-If the selected SOP is:
-
-"both"
-
-→ Explain the role of each SOP separately.
-
-If the selected SOP is:
-
-"unclear"
-
-→ Do not guess. Explain the distinction between the two SOPs and ask
-the minimum clarification needed if the question cannot be answered
-reliably.
-
-Never combine workflow steps from the two SOPs simply because they
-appear relevant.
-
-Answer the user's question strictly from the approved SOP context.
-
-If the question is broader or more general than the SOP itself, answer
-helpfully from what is available in the supplied context and clearly
-note when the question is outside the SOP's direct scope.
+Do not invent information that is absent from the supplied context.
 """
 
     response = client.responses.create(
@@ -1959,68 +1386,60 @@ note when the question is outside the SOP's direct scope.
 
     answer = response.output_text.strip()
 
-    if not answer:
-        return (
-            "I could not find enough information in the SOP "
-            "to answer that."
-        )
-
-    return answer
+    return (
+        answer
+        or "I could not find enough information in the supplied context "
+        "to answer that."
+    )
 
 
-# ============================================================================
-# Public API
-# ============================================================================
+# ---------------------------- Public API ----------------------------
 
 def answer_query(
     user_query: str,
     chat_history: Optional[
         List[Dict[str, str]]
     ] = None,
+    uploaded_vectorstore: Any = None,
+    uploaded_filenames: Optional[
+        List[str]
+    ] = None,
 ) -> str:
     """
     Main function called from Chatbot.py.
+
+    uploaded_vectorstore:
+        Optional Chroma vectorstore created from the user's uploaded PDF.
+
+    uploaded_filenames:
+        Optional list containing the uploaded file name(s).
     """
 
     if not user_query or not user_query.strip():
 
         return (
             "Please enter a question about the CPFB-MOH "
-            "Healthcare Financing comms workflow SOP."
+            "Healthcare Financing media workflow SOP."
         )
 
     try:
 
         query = user_query.strip()
 
-        # ----------------------------------------------------------
-        # Step 1: Classify the situation
-        # ----------------------------------------------------------
-
         classification = classify_query(
             query,
         )
 
-        # ----------------------------------------------------------
-        # Step 2: Retrieve the relevant SOP context
-        # ----------------------------------------------------------
-
         context = retrieve_context(
             query,
             classification,
+            uploaded_vectorstore=uploaded_vectorstore,
+            uploaded_filenames=uploaded_filenames,
         )
-
-        # ----------------------------------------------------------
-        # Step 3: Extract source slides
-        # ----------------------------------------------------------
 
         source_slides = extract_source_slides(
             context,
         )
-
-        # ----------------------------------------------------------
-        # Step 4: Generate grounded answer
-        # ----------------------------------------------------------
 
         return generate_answer(
             query,
@@ -2036,8 +1455,7 @@ def answer_query(
         )
 
         return (
-            "I could not find the SOP data files in "
-            "the Data folder."
+            "I could not find data/healthcare_comms_sops.json."
         )
 
     except RuntimeError as exc:
@@ -2063,25 +1481,9 @@ def answer_query(
         )
 
 
-# ============================================================================
-# Debugging / Development API
-# ============================================================================
-
 def classify_for_debug(
     user_query: str,
 ) -> Dict[str, Any]:
-    """
-    Useful during development.
-
-    This allows you to inspect:
-
-    - which SOP was selected
-    - which 2025 pathway was identified
-    - source slides retrieved
-    - full retrieval context
-
-    without generating a final chatbot response.
-    """
 
     classification = classify_query(
         user_query,
@@ -2094,10 +1496,8 @@ def classify_for_debug(
 
     return {
         "classification": classification,
-
         "source_slides": extract_source_slides(
-            context,
+            context
         ),
-
         "context": context,
     }
