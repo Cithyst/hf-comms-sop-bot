@@ -12,7 +12,16 @@ from helper_functions.document_loader import load_and_split
 from logics.rag import answer_query as rag_answer_query
 
 
-load_dotenv()
+if load_dotenv('.env'):
+   # for local development
+   OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+else:
+   OPENAI_API_KEY = st.secrets['OPENAI_API_KEY']
+
+
+# Pass the API Key to the OpenAI Client
+client = OpenAI(api_key=OPENAI_API_KEY)
+# Some other code here are omitted for brevity
 
 
 # ============================================================
@@ -248,7 +257,7 @@ if uploaded_files:
 
         embeddings = OpenAIEmbeddings(
             model="text-embedding-3-small",
-            api_key=os.environ["OPENAI_API_KEY"],
+            api_key=OPENAI_API_KEY,
         )
 
         vectorstore = Chroma.from_documents(
