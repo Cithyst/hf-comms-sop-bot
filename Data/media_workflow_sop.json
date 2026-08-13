@@ -1,0 +1,715 @@
+{
+  "document": {
+    "title": "CPFB-MOH Workflow for Preparation & Issuance of Media Materials for Healthcare Financing Schemes",
+    "meeting": "CPFB-MOH Comms Engagement Meeting",
+    "status": "For Approval",
+    "date": "29 July 2025",
+    "source": "13-slide source deck provided by user",
+    "notes": [
+      "source_slide refers to the original slide number in the 13-slide source deck. It is a citation/reference field only; the application does not need the original PDF or images to use it.",
+      "The source deck does not state a fixed numerical SLA. It states that the party responsible for preparing media materials must establish the required SLA/timeline with relevant parties before the workflow starts."
+    ]
+  },
+  "slides": {
+    "1": {
+      "title": "CPFB-MOH Workflow for Preparation & Issuance of Media Materials for Healthcare Financing Schemes",
+      "type": "cover"
+    },
+    "2": {
+      "title": "Recap and Aim",
+      "type": "context",
+      "content": [
+        "At the CPFB-MOH comms engagement meeting in Sep 2024, CPFB and MOH established the workflow and SLA for the preparation and sharing of Healthcare Financing (HF) materials between CPFB and MOH.",
+        "Existing workflows would be reviewed regularly between CPFB and MOH.",
+        "CPFB would also continuously review the need for additional workflows to address other scenarios if required.",
+        "Arising from CPFB's review, a set of framework and guiding principles was established on the rightful owner for developing comms materials and managing media queries regarding HF policy and/or ops-related announcements.",
+        "The workflow for the preparation and issuance of media materials was established."
+      ],
+      "footnote": "There are already other SOPs in place, such as DRUMS SOP to handle mistruths for members who post on social media. This newly created SOP is to address all other scenarios arising under the respective buckets detailed in Slide 4."
+    },
+    "3": {
+      "title": "Definition of Media Materials",
+      "type": "definition",
+      "media_materials": [
+        "Press releases (official announcements)",
+        "Media queries (from media outlets/journalists)",
+        "Interview requests (e.g. podcasts, stories on broadcast or print)"
+      ],
+      "additional_scope": "Includes but is not limited to any other forms of media engagement, communications, or content requests that may require official response or participation, e.g. Anticipated Media Queries, Media Factsheets, etc.",
+      "source_slide": 3
+    },
+    "4": {
+      "title": "Guiding principles for identifying the rightful party to prepare comms materials and manage media queries on issues related to healthcare financing (HF)",
+      "type": "decision_framework",
+      "decision_question": "Is the matter operations-related, policy-related, or joint?",
+      "categories": [
+        {
+          "id": "operation_related",
+          "label": "Operations-related",
+          "owner": "CPFB",
+          "definition": "Operational matters related to administration of healthcare schemes by CPFB.",
+          "example": "Feedback on a member's interactions with CPFB's service staff on healthcare matters.",
+          "source_slide": 4
+        },
+        {
+          "id": "policy_related",
+          "label": "Policy-related",
+          "owner": "MOH",
+          "definition": "Policy announcements on financing schemes that concern CPFB.",
+          "example": "Announcements on scheme changes such as MediShield Life review.",
+          "source_slide": 4
+        },
+        {
+          "id": "joint",
+          "label": "Joint",
+          "owner": "CPFB & MOH",
+          "definition": "Products jointly developed by MOH and CPFB.",
+          "example": "CPFB & MOH jointly developed the Health Insurance Planner, a tool to assist members with healthcare financing planning.",
+          "source_slide": 4
+        }
+      ]
+    },
+    "5": {
+      "title": "Parties involved in the workflow takes on the listed overarching roles and responsibility",
+      "type": "overarching_roles",
+      "responsibilities": [
+        {
+          "party": "MOH/CPFB Comms",
+          "role": "Responsible for initiating the drafting and issuance of media materials, and managing any sentiments relating to the issued media material.",
+          "source_slide": 5
+        },
+        {
+          "party": "MOH/CPFB Business Users, i.e. HF/HFG",
+          "role": "Provide necessary inputs to comms and fact-check drafted materials.",
+          "source_slide": 5
+        },
+        {
+          "party": "MOH/CPFB Comms responsible for preparing the media materials",
+          "role": "Accountable for establishing the understanding with relevant parties involved on the required SLA/timeline before commencement of the workflow.",
+          "source_slide": 5
+        }
+      ]
+    },
+    "6": {
+      "title": "Detailed roles and responsibilities between each party in CPFB & MOH",
+      "type": "roles",
+      "roles": [
+        {
+          "party": "MOH-CommsD",
+          "responsibilities": [
+            "Initiate drafting of media materials where applicable.",
+            "Liaise with CPF-MPD to provide any inputs.",
+            "Touch base with MOH-HF for comments.",
+            "Provide any clarifications required to MOH-HF, CPF-MPD, CPFB HFG.",
+            "Clear media materials with MOH Senior Management.",
+            "Issue cleared media materials where applicable."
+          ],
+          "source_slide": 6
+        },
+        {
+          "party": "MOH-HF",
+          "responsibilities": [
+            "Staff level to provide comments to CPF-HID/HCP staff level when inputs are sought.",
+            "Provide any comments and clarifications required to MOH-CommsD."
+          ],
+          "source_slide": 6
+        },
+        {
+          "party": "CPF-MPD",
+          "responsibilities": [
+            "Initiate drafting of media materials where applicable.",
+            "Triggers CPF-SSE and CPF-HID/HCP for any inputs.",
+            "Provides CPFB's inputs to MOH-CommsD.",
+            "Liaise with MOH-CommsD and CPFB HFG on any clarifications required.",
+            "Clears media materials with CPFB HODs and GDs, EXCO.",
+            "Informs relevant parties of cleared media content.",
+            "Issue cleared media materials where applicable."
+          ],
+          "source_slide": 6
+        },
+        {
+          "party": "CPF-SSE",
+          "responsibilities": [
+            "Coordinates inputs provided by CPF-HID and CPF-HCP and provides CPFB HFG's inputs to MOH-CommsD and MOH-HF / CPF-MPD.",
+            "Liaise with CPF-MPD, CPFB HFG on any clarifications required."
+          ],
+          "source_slide": 6
+        },
+        {
+          "party": "CPF-HID, CPF-HCP",
+          "responsibilities": [
+            "Provides staff level inputs to CPF-SSE / CPF-MPD / MOH-CommsD and MOH-HF.",
+            "Liaise with MOH-HF, CPF-SSE on any comments and clarifications required."
+          ],
+          "source_slide": 6
+        }
+      ],
+      "footnote": "Drafting and issuance of media materials depends on type of announcement or response (i.e. comms approach)."
+    },
+    "7": {
+      "title": "Proposed clearance process between CPFB & MOH for media materials",
+      "type": "high_level_workflow",
+      "sla_note": "The rightful party who prepares the media materials is accountable to establish an understanding with relevant parties involved on the required SLA/timeline before commencement of workflow.",
+      "workflows": [
+        {
+          "id": "operation_related",
+          "title": "Operation-related: CPFB prepares and manages media materials",
+          "owner": "CPFB",
+          "steps": [
+            {
+              "step": 1,
+              "owner": "CPFB",
+              "action": "CPFB prepares and clears media materials up to EXCO."
+            },
+            {
+              "step": 2,
+              "owner": "CPFB",
+              "action": "CPFB sends cleared materials to relevant parties, including MOH-CommsD, for information."
+            },
+            {
+              "step": 3,
+              "owner": "CPFB",
+              "action": "CPFB issues media materials."
+            }
+          ],
+          "source_slide": 7
+        },
+        {
+          "id": "policy_related",
+          "title": "Policy-related: MOH prepares and manages media materials",
+          "owner": "MOH",
+          "condition": "Policy-related pathway. The detailed CPFB-input workflow applies if CPFB provides inputs.",
+          "steps": [
+            {
+              "step": 1,
+              "owner": "MOH",
+              "action": "MOH prepares media materials and clears up to MOH Directors level."
+            },
+            {
+              "step": 2,
+              "condition": "If CPFB provides inputs",
+              "owner": "CPFB / MOH",
+              "action": "CPFB and MOH align on revisions if any."
+            },
+            {
+              "step": 3,
+              "owner": "MOH",
+              "action": "MOH clears media materials with MOH Senior Management (up to PS/DSEs and Min) and keeps CPFB informed."
+            },
+            {
+              "step": 4,
+              "condition": "If CPFB provides inputs",
+              "owner": "CPFB",
+              "action": "CPFB updates EXCO on changes, if any, and sends final materials to relevant parties for information."
+            },
+            {
+              "step": 5,
+              "owner": "MOH",
+              "action": "MOH issues media material."
+            }
+          ],
+          "source_slide": 7
+        },
+        {
+          "id": "joint",
+          "title": "Joint: CPFB/MOH prepares and manages media materials",
+          "owner": "CPFB & MOH",
+          "steps": [
+            {
+              "step": 1,
+              "owner": "CPFB/MOH",
+              "action": "CPFB/MOH prepares media materials with MOH/CPFB's inputs."
+            },
+            {
+              "step": 2,
+              "owner": "CPFB",
+              "action": "CPFB clears internally up to EXCO."
+            },
+            {
+              "step": 3,
+              "owner": "MOH",
+              "action": "MOH clears internally up to GD level."
+            },
+            {
+              "step": 4,
+              "owner": "CPFB & MOH",
+              "action": "CPFB & MOH align on revisions if any."
+            },
+            {
+              "step": 5,
+              "owner": "MOH",
+              "action": "MOH clears internally with MOH Senior Management (up to PS, DSEs and Min) and keeps CPFB informed."
+            },
+            {
+              "step": 6,
+              "owner": "CPFB",
+              "condition": "If there are changes requiring CPFB EXCO update",
+              "action": "CPFB updates EXCO on changes, if any, and sends final materials to relevant parties for information."
+            },
+            {
+              "step": 7,
+              "owner": "CPFB/MOH",
+              "action": "CPFB/MOH issues media materials."
+            }
+          ],
+          "source_slide": 7
+        }
+      ]
+    },
+    "8": {
+      "title": "Detailed internal clearance process involving CPFB for operation-related media content",
+      "type": "section_divider",
+      "source_slide": 8
+    },
+    "9": {
+      "title": "Workflow for media materials (operation-related) drafted by CPFB and involving HFG (either 1 or cross-departments)",
+      "type": "detailed_workflow",
+      "pathway": "operation_related",
+      "start": "Start",
+      "steps": [
+        {
+          "step": 1,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD drafts content and seeks CPF-HID and/or HCP staff level to provide inputs while keeping CPF-HPD-SSE in the loop.",
+          "source_slide": 9
+        },
+        {
+          "step": 2,
+          "owner": "CPF-HID and/or CPF-HCP",
+          "action": "CPF-HID and/or CPF-HCP staff level touches base with respective MOH-HF for comments if required.",
+          "source_slide": 9
+        },
+        {
+          "step": 3,
+          "owner": "CPF-HID / CPF-HCP",
+          "action": "CPF-HID and/or CPF-HCP staff level provides staff-level cleared inputs to CPF-MPD. CPF-HPD-SSE can provide additional comments when required. CPF-HPD-SSE will consolidate and provide if more than 1 department is involved.",
+          "source_slide": 9
+        },
+        {
+          "step": 4,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD concurrently clears with HFG HOD(s), CPF-COM HOD, followed by GD(HF), GD(COM).",
+          "source_slide": 9
+        },
+        {
+          "step": 5,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD clears with CPFB EXCO once CPF HODs and GDs have cleared.",
+          "source_slide": 9
+        },
+        {
+          "step": 6,
+          "owner": "CPF-MPD",
+          "action": "Before issuance, CPF-MPD sends cleared content to: (1) MOM Min, SMSes, MOS, PS, DS for info; (2) Chairman and Board members for info; (3) CM for info; (4) MOH-CommsD and MOH-HF for info.",
+          "source_slide": 9
+        },
+        {
+          "step": 7,
+          "owner": "CPF-HPD-SSE",
+          "action": "Concurrently notify CPF-HID and CPF-HCP teams on final cleared content.",
+          "source_slide": 9
+        },
+        {
+          "step": 8,
+          "owner": "CPF-HID / CPF-HCP",
+          "action": "Share the final cleared content and FAQs to CUG BP for dissemination to frontliners.",
+          "source_slide": 9
+        },
+        {
+          "step": 9,
+          "owner": "CPFB",
+          "action": "CPFB issues media content.",
+          "source_slide": 9
+        }
+      ],
+      "notes": [
+        "CPF-HPD-SSE is to be kept in the loop for the whole process; same for CPF-COM-BP except for the yellow box.",
+        "CPF-MPD is to keep CPF-HID/HCP HODs and GD(HF) in the loop when clearing CPFB EXCO.",
+        "The relevant Section Head of the CPF-HID/HCP team is also to be kept in the clearance emails."
+      ],
+      "sla": {
+        "specified": false,
+        "rule": "The rightful party preparing the media materials establishes the required SLA/timeline with relevant parties before commencement.",
+        "source_slide": 7
+      }
+    },
+    "10": {
+      "title": "Detailed internal clearance process involving CPFB's inputs for policy-related media content",
+      "type": "section_divider",
+      "condition": "Workflow only applies if CPFB's inputs are required.",
+      "source_slide": 10
+    },
+    "11": {
+      "title": "Workflow for media materials (policy-related) drafted by MOH and requires CPFB's inputs involving HFG (either 1 or cross-departments)",
+      "type": "detailed_workflow",
+      "pathway": "policy_related",
+      "condition": "Applies when policy-related media materials are drafted by MOH and CPFB inputs are required.",
+      "start": "Start",
+      "steps": [
+        {
+          "step": 1,
+          "owner": "MOH-CommsD",
+          "action": "MOH-CommsD initiates drafting and alerts CPF-MPD. MOH-HF drafts the content. MOH-HF touches base with respective CPF-HID and/or HCP staff level, and MOH-CommsD seeks inputs.",
+          "source_slide": 11
+        },
+        {
+          "step": 2,
+          "owner": "CPFB HFG",
+          "action": "CPFB HFG staff-level cleared inputs are provided to MOH-CommsD and MOH-HF.",
+          "source_slide": 11
+        },
+        {
+          "step": 3,
+          "owner": "MOH-CommsD / CPF-MPD",
+          "action": "MOH-CommsD proceeds clearance with MOH Directors (up to GD level) if no further changes. CPF-MPD concurrently clears with CPF-HID/HCP HOD, CPF-COM HOD, followed by GD(HF), GD(COM).",
+          "source_slide": 11
+        },
+        {
+          "step": 4,
+          "owner": "CPFB",
+          "action": "While MOH clears MOH Directors, CPF-MPD can proceed to clear with CPFB EXCO once CPF HODs and GDs have cleared.",
+          "source_slide": 11
+        },
+        {
+          "step": 5,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD sends EXCO-cleared draft to MOH-CommsD. MOH-CommsD and CPF-MPD align on revisions if any.",
+          "source_slide": 11
+        },
+        {
+          "step": 6,
+          "owner": "MOH-CommsD",
+          "action": "MOH-CommsD proceeds to clear with MOH PS/DSEs and then Min.",
+          "source_slide": 11
+        },
+        {
+          "step": 7,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD updates CPFB EXCO if there are further edits to earlier draft following MOH's clearance.",
+          "source_slide": 11
+        },
+        {
+          "step": 8,
+          "owner": "CPF-MPD",
+          "action": "Before issuance, CPF-MPD sends cleared content to CM for info.",
+          "source_slide": 11
+        },
+        {
+          "step": 9,
+          "owner": "CPF-HPD-SSE",
+          "action": "Concurrently notify CPF-HID and CPF-HCP teams on final cleared content.",
+          "source_slide": 11
+        },
+        {
+          "step": 10,
+          "owner": "CPF-HID / CPF-HCP",
+          "action": "Share the final cleared content and FAQs to CUG BP for dissemination to frontliners.",
+          "source_slide": 11
+        },
+        {
+          "step": 11,
+          "owner": "MOH",
+          "action": "MOH issues media content.",
+          "source_slide": 11
+        }
+      ],
+      "notes": [
+        "CPF-HPD-SSE is to be kept in the loop for the whole process; same for CPF-COM-BP.",
+        "CPF-MPD is to keep CPF-HID/HCP HODs and GD(HF) in the loop when clearing CPFB EXCO.",
+        "The Section Head of the relevant CPF-HID/HCP team is also to be kept in the clearance emails."
+      ],
+      "sla": {
+        "specified": false,
+        "rule": "The rightful party preparing the media materials establishes the required SLA/timeline with relevant parties before commencement.",
+        "source_slide": 7
+      }
+    },
+    "12": {
+      "title": "Detailed internal clearance process involving CPFB and MOH for joint policy or operation-related media content",
+      "type": "section_divider",
+      "source_slide": 12
+    },
+    "13": {
+      "title": "Workflow for media materials (products jointly developed by MOH & CPFB) drafted by CPFB/MOH and involving HFG (either 1 or cross-departments)",
+      "type": "detailed_workflow",
+      "pathway": "joint",
+      "start": "Start",
+      "decision": {
+        "question": "CPFB drafts?",
+        "yes": {
+          "source_slide": 13,
+          "steps": [
+            {
+              "step": 1,
+              "owner": "CPF-MPD",
+              "action": "CPF-MPD initiates drafting and alerts MOH-CommsD. CPF-MPD drafts content and sends CPFB inputs to MOH-CommsD for inputs."
+            },
+            {
+              "step": 2,
+              "owner": "MOH-CommsD / MOH-HF",
+              "action": "MOH-CommsD and MOH-HF staff level provides final comments to CPF-MPD."
+            }
+          ]
+        },
+        "no": {
+          "source_slide": 13,
+          "steps": [
+            {
+              "step": 1,
+              "owner": "MOH-CommsD / MOH-HF",
+              "action": "MOH-CommsD initiates drafting and alerts CPF-MPD. MOH-HF drafts content. MOH-HF touches base with respective CPF-HID and/or HCP staff level, and MOH-CommsD seeks inputs."
+            },
+            {
+              "step": 2,
+              "owner": "CPFB HFG",
+              "action": "CPFB HFG staff-level cleared inputs are provided to MOH-CommsD and MOH-HF."
+            }
+          ]
+        }
+      },
+      "common_steps_after_drafting": [
+        {
+          "step": 3,
+          "owner": "MOH-CommsD / CPF-MPD",
+          "action": "CPF-MPD informs MOH-CommsD if CPFB drafts content to proceed with clearance with MOH Directors if there are no further changes. Otherwise, MOH-CommsD directly proceeds with clearance. CPF-MPD concurrently clears with CPF-HID/HCP HOD, CPF-COM HOD, followed by GD(HF), GD(COM).",
+          "source_slide": 13
+        },
+        {
+          "step": 4,
+          "owner": "CPF-MPD",
+          "action": "While MOH clears MOH Directors, CPF-MPD can proceed to clear with CPFB EXCO once CPF HODs and GDs have cleared.",
+          "source_slide": 13
+        },
+        {
+          "step": 5,
+          "owner": "CPF-MPD / MOH-CommsD",
+          "action": "CPF-MPD sends EXCO-cleared draft to MOH-CommsD. MOH-CommsD and CPF-MPD align on revisions if any.",
+          "source_slide": 13
+        },
+        {
+          "step": 6,
+          "owner": "MOH-CommsD",
+          "action": "MOH-CommsD proceeds to clear with MOH PS/DSEs and then Min.",
+          "source_slide": 13
+        },
+        {
+          "step": 7,
+          "owner": "CPF-MPD",
+          "action": "CPF-MPD updates CPFB EXCO if there are further edits to earlier draft following MOH's clearance.",
+          "source_slide": 13
+        },
+        {
+          "step": 8,
+          "owner": "CPF-MPD",
+          "action": "Before issuance, CPF-MPD sends cleared content to: (1) CM for info; (2) MOM Min, SMSes, MOS, PS, DS for info; (3) Chairman and Board members for info.",
+          "source_slide": 13
+        },
+        {
+          "step": 9,
+          "owner": "CPF-HPD-SSE",
+          "action": "Concurrently notify CPF-HID and CPF-HCP teams on final cleared content.",
+          "source_slide": 13
+        },
+        {
+          "step": 10,
+          "owner": "CPF-HID / CPF-HCP",
+          "action": "Share the final cleared content and FAQs to CUG BP for dissemination to frontliners.",
+          "source_slide": 13
+        },
+        {
+          "step": 11,
+          "owner": "CPFB/MOH",
+          "action": "CPFB/MOH issues media content.",
+          "source_slide": 13
+        }
+      ],
+      "notes": [
+        "CPF-HPD-SSE is to be kept in the loop for the whole process; same for CPF-COM-BP except for the yellow box.",
+        "CPF-MPD is to keep CPF-HID/HCP HODs and GD(HF) in the loop when clearing CPFB EXCO.",
+        "The Section Head of the relevant CPF-HID/HCP team is also to be kept in the clearance emails."
+      ],
+      "sla": {
+        "specified": false,
+        "rule": "The rightful party preparing the media materials establishes the required SLA/timeline with relevant parties before commencement.",
+        "source_slide": 7
+      }
+    }
+  },
+  "decision_rules": [
+    {
+      "rule_id": "DR-01",
+      "question": "Is the matter operations-related?",
+      "if": "It concerns operational matters related to administration of healthcare schemes by CPFB.",
+      "then": "Use the operation-related pathway. CPFB is the rightful owner/preparer and issuer.",
+      "source_slide": 4
+    },
+    {
+      "rule_id": "DR-02",
+      "question": "Is the matter policy-related?",
+      "if": "It concerns policy announcements on financing schemes that concern CPFB.",
+      "then": "Use the policy-related pathway. MOH is the rightful owner/preparer and issuer.",
+      "source_slide": 4
+    },
+    {
+      "rule_id": "DR-03",
+      "question": "Is the matter jointly developed?",
+      "if": "It concerns a product or material jointly developed by MOH and CPFB.",
+      "then": "Use the joint pathway. CPFB and MOH jointly prepare/manage and issue the material.",
+      "source_slide": 4
+    },
+    {
+      "rule_id": "DR-04",
+      "question": "Does the policy-related workflow involving CPFB apply?",
+      "if": "CPFB's inputs are required for policy-related media content drafted by MOH.",
+      "then": "Use the detailed policy-related workflow in Slide 11.",
+      "source_slide": 10
+    },
+    {
+      "rule_id": "DR-05",
+      "question": "Who establishes the SLA/timeline?",
+      "if": "A party is responsible for preparing the media materials.",
+      "then": "That responsible party establishes the required SLA/timeline with relevant parties before the workflow begins.",
+      "source_slide": 5
+    },
+    {
+      "rule_id": "DR-06",
+      "question": "Does this SOP cover every social-media-related case?",
+      "if": "The scenario is specifically a member mistruth on social media.",
+      "then": "Check the existing DRUMS SOP rather than automatically applying this workflow.",
+      "source_slide": 2
+    }
+  ],
+  "sla": {
+    "fixed_duration_in_source": false,
+    "value": null,
+    "unit": null,
+    "rule": "The party responsible for preparing the media materials is accountable for establishing an understanding with relevant parties on the required SLA/timeline before commencement of the workflow.",
+    "source_slides": [
+      2,
+      5,
+      7
+    ],
+    "bot_instruction": "Never invent a numerical SLA. If asked for an SLA duration, state that the source SOP does not specify a fixed numerical duration and directs the responsible party to establish the required SLA/timeline with relevant parties before the workflow begins."
+  },
+  "roles": [
+    {
+      "party": "MOH-CommsD",
+      "responsibilities": [
+        "Initiate drafting of media materials where applicable.",
+        "Liaise with CPF-MPD for inputs.",
+        "Touch base with MOH-HF for comments.",
+        "Provide clarifications required to MOH-HF, CPF-MPD and CPFB HFG.",
+        "Clear media materials with MOH Senior Management.",
+        "Issue cleared media materials where applicable."
+      ],
+      "source_slide": 6
+    },
+    {
+      "party": "MOH-HF",
+      "responsibilities": [
+        "Provide staff-level comments to CPF-HID/HCP staff level when inputs are sought.",
+        "Provide comments and clarifications required to MOH-CommsD."
+      ],
+      "source_slide": 6
+    },
+    {
+      "party": "CPF-MPD",
+      "responsibilities": [
+        "Initiate drafting of media materials where applicable.",
+        "Trigger CPF-SSE and CPF-HID/HCP for inputs.",
+        "Provide CPFB inputs to MOH-CommsD.",
+        "Liaise with MOH-CommsD and CPFB HFG on clarifications.",
+        "Clear media materials with CPFB HODs, GDs and EXCO.",
+        "Inform relevant parties of cleared media content.",
+        "Issue cleared media materials where applicable."
+      ],
+      "source_slide": 6
+    },
+    {
+      "party": "CPF-SSE",
+      "responsibilities": [
+        "Coordinate inputs provided by CPF-HID and CPF-HCP.",
+        "Provide CPFB HFG inputs to MOH-CommsD and MOH-HF / CPF-MPD.",
+        "Liaise with CPF-MPD and CPFB HFG on clarifications."
+      ],
+      "source_slide": 6
+    },
+    {
+      "party": "CPF-HID / CPF-HCP",
+      "responsibilities": [
+        "Provide staff-level inputs to CPF-SSE / CPF-MPD / MOH-CommsD and MOH-HF.",
+        "Liaise with MOH-HF and CPF-SSE on comments and clarifications."
+      ],
+      "source_slide": 6
+    }
+  ],
+  "exceptions_and_notes": [
+    {
+      "id": "EX-01",
+      "description": "Existing SOPs remain applicable to scenarios already covered by them. The source deck specifically gives DRUMS SOP as an example for handling mistruths involving members who post on social media.",
+      "source_slide": 2
+    },
+    {
+      "id": "EX-02",
+      "description": "The detailed policy-related workflow only applies when CPFB inputs are required.",
+      "source_slide": 10
+    },
+    {
+      "id": "EX-03",
+      "description": "Drafting and issuance depends on the type of announcement or response, i.e. the communications approach.",
+      "source_slide": 6
+    },
+    {
+      "id": "EX-04",
+      "description": "For cross-department HFG matters, CPF-HPD-SSE consolidates inputs where more than one department is involved.",
+      "source_slide": 9
+    },
+    {
+      "id": "EX-05",
+      "description": "CPF-HPD-SSE is to be kept in the loop throughout the relevant process.",
+      "source_slides": [
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "id": "EX-06",
+      "description": "CPF-MPD should keep CPF-HID/HCP HODs and GD(HF) in the loop when clearing CPFB EXCO.",
+      "source_slides": [
+        9,
+        11,
+        13
+      ]
+    },
+    {
+      "id": "EX-07",
+      "description": "The relevant Section Head of the CPF-HID/HCP team should be kept in the clearance emails.",
+      "source_slides": [
+        9,
+        11,
+        13
+      ]
+    }
+  ],
+  "bot_answering_guidance": {
+    "required_answer_structure": [
+      "Identify the applicable SOP pathway.",
+      "Explain briefly why the pathway applies.",
+      "Identify the responsible drafting/clearing/issuing party.",
+      "List the relevant workflow steps in sequence.",
+      "Identify relevant stakeholders and clearance points.",
+      "State the SLA/timeline rule. Do not invent a numerical SLA.",
+      "Mention applicable conditions/exceptions.",
+      "Cite the relevant source slide number(s)."
+    ],
+    "grounding_rules": [
+      "Use only information contained in this JSON as the approved SOP source.",
+      "Do not invent missing SLA durations.",
+      "Do not infer an owner where the source does not provide one.",
+      "If the scenario is ambiguous between operations-related, policy-related and joint, ask a targeted clarification or explain the possible pathways.",
+      "If a scenario appears to fall under an existing SOP outside this deck, flag that rather than forcing it into one of the three pathways.",
+      "When the answer depends on whether CPFB provides inputs, explicitly state that condition."
+    ]
+  }
+}

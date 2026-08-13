@@ -1,0 +1,659 @@
+{
+  "document_id": "hf_comms_sharing_cpfb_moh_2024",
+  "title": "Workflow for Sharing of Healthcare Financing Comms Materials btw CPFB & MOH",
+  "short_title": "2024 HF Comms Sharing SOP",
+  "status": "Endorsed",
+  "updated_as_at": "8 Oct 2024",
+  "source_type": "Slide deck",
+  "scope": "Workflow and SLA for providing inputs, preparing, sharing, updating and disseminating Healthcare Financing (HF) communications materials between CPFB and MOH.",
+  "document_relationship": {
+    "successor": "Workflow for Preparation & Issuance of Media Materials for Healthcare Financing Schemes",
+    "successor_year": 2025,
+    "note": "The 2025 SOP was established after this 2024 SOP and CPFB's subsequent review. The two SOPs are related but distinct. For questions specifically about preparation and issuance of media materials such as press releases, media queries and interview requests, the 2025 SOP should also be consulted."
+  },
+  "decision_framework": {
+    "primary_question": "Does the communications material require changes or updates on CPFB communications channels?",
+    "pathways": [
+      {
+        "condition": "Yes",
+        "pathway": "A - Comms materials requiring changes on CPFB comms channels",
+        "source_slides": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ]
+      },
+      {
+        "condition": "No",
+        "pathway": "B - MOH-generated comms materials not requiring changes on CPFB comms channels",
+        "source_slides": [
+          13,
+          14,
+          15,
+          16
+        ]
+      }
+    ],
+    "additional_questions": [
+      "Is the material new or an editorial change to an existing asset?",
+      "Is the change factual only, or does it change the narrative?",
+      "Does the change arise from a policy change?",
+      "Is one HFG department involved or are multiple HFG departments involved?",
+      "Is CPFB mentioned in an MOH-generated material?",
+      "Will the material be hosted on a CPFB communications channel?",
+      "Is CPF-COM required to develop a new communications asset?",
+      "Does the activity involve a significant number of members (>=100,000) or a potentially negative impact on members?"
+    ]
+  },
+  "aim_and_background": {
+    "aim": [
+      "Establish internal workflows and Service Level Agreements (SLAs) for preparation and sharing of Healthcare Financing comms materials at CPFB comms channels.",
+      "For materials requiring changes: provide inputs and prepare HF comms materials, and disseminate HF comms materials to CPFB frontliners.",
+      "For materials not requiring changes: disseminate HF comms materials from MOH to CPFB frontliners."
+    ],
+    "background": [
+      "A post-mortem review on 2023 Participative Incentive Comms & Engagement activities was conducted and shared at the HFG meeting in Jan 2024.",
+      "Gaps identified included lack of timely updates of MOH's comms plan and lack of a proper SOP detailing steps and SLA for staff.",
+      "Since Jun 2024, HPD-SSE engaged HFG and COM to develop sustainable and operable workflows and SLAs.",
+      "Common understanding between MOH and CPFB on C&E matters was established at the CPF-MOH Comms Engagement meeting on 4 Sep 2024."
+    ],
+    "source_slides": [
+      1,
+      2,
+      3
+    ]
+  },
+  "materials": {
+    "requiring_changes_on_cpf_channels": [
+      "Website contents, including FAQs",
+      "Collaterals and notifications",
+      "Infographics",
+      "Social media posts",
+      "eDMs",
+      "Videos"
+    ],
+    "not_requiring_changes_on_cpf_channels_examples": [
+      "Press releases",
+      "Infographics",
+      "Out-of-home advertisements",
+      "TV/radio advertisements",
+      "Newspaper articles"
+    ],
+    "cpf_com_new_assets": [
+      "Infographics",
+      "Social posts",
+      "eDMs",
+      "Videos"
+    ],
+    "note": "Examples of comms materials are non-exhaustive."
+  },
+  "clearance_rules": {
+    "effective_from": "1 Oct 2024",
+    "scope": "All static contents and FAQs, external and internal, on the CPF and CSHL websites.",
+    "cpf_com_clearance_required": [
+      "Revisions arising from policy changes, e.g. MediShield Life Review changes, subject to the stated exception.",
+      "Revisions to narratives, e.g. adding new information or changing the overall answer.",
+      "New narratives, e.g. new static contents and new FAQs."
+    ],
+    "cpf_com_clearance_not_required": [
+      "Factual revisions arising from policy changes, e.g. replacement of dates or figures.",
+      "BAU changes with no changes to the narratives."
+    ],
+    "footnote": "The slide references an exception labelled 2a. Consult the original approved slide when determining whether that exception applies to a specific case.",
+    "source_slide": 12
+  },
+  "roles": {
+    "general": [
+      "Relevant CPF/MOH Points of Contact coordinate the workflow according to the type of outreach.",
+      "HFG provides healthcare-financing subject matter inputs, clarification and review.",
+      "CPF-COM develops or updates communications assets where required.",
+      "Relevant Ops/HFG teams identify affected materials, draft changes, obtain internal clearance and support dissemination.",
+      "CPF-SSE coordinates and consolidates inputs where multiple HFG departments are involved."
+    ],
+    "poc_by_outreach": {
+      "public_outreach": {
+        "description": "Comms efforts aimed at raising awareness and understanding among the public regarding various healthcare financing schemes, e.g. BAU Comms & Engagement activities.",
+        "cpf_poc": "CPF-SSE",
+        "moh_poc": "MOH-SCE",
+        "stakeholders": [
+          "HFG Team – CPF-HID or CPF-HCP",
+          "CPF-COM"
+        ]
+      },
+      "cross_cutting_outreach": {
+        "description": "Public engagement efforts for healthcare initiatives involving changes to multiple features or benefits across healthcare financing schemes, e.g. overall consolidated changes for the MediShield Life Review.",
+        "cpf_poc": "CPF-SSE",
+        "moh_poc": "MOH-SCE",
+        "stakeholders": [
+          "HFG Team – CPF-HID or CPF-HCP",
+          "CPF-COM"
+        ]
+      },
+      "policy_specific_outreach": {
+        "description": "Dissemination of information and updates related to specific healthcare policies.",
+        "cpf_poc": "Ops Team (CPF-HID or CPF-HCP)",
+        "moh_poc": "MOH-FP",
+        "stakeholders": [
+          "HFG Team – CPF-SSE",
+          "CPF-COM",
+          "MOH Team – MOH-SCE"
+        ]
+      },
+      "project_specific_outreach": {
+        "description": "Comms efforts to inform about a particular healthcare financing project, its implementation and impact on individuals, e.g. Health Insurance Planner.",
+        "cpf_poc": "Project Team",
+        "moh_poc": "MOH-FP",
+        "stakeholders": [
+          "HFG Team – CPF-SSE",
+          "CPF-COM",
+          "MOH Team – MOH-SCE"
+        ]
+      }
+    },
+    "source_slides": [
+      17,
+      18
+    ]
+  },
+  "workflows": {
+    "general_cpf_channel_change": {
+      "name": "Internal process for materials requiring changes on CPFB comms channels",
+      "source_slides": [
+        5,
+        6,
+        7
+      ],
+      "steps": [
+        "MOH-POC provides advance notice through updates in the CPFB and HFG COEs.",
+        "Determine whether inputs from CPF-HID/HCP are required.",
+        "If required, CPF-POC seeks inputs from CPF-HID/HCP.",
+        "CPF-POC collaborates with CPF-COM and/or MOH-POC to ensure affected materials at various channels are updated or to develop new comms materials.",
+        "MOH-POC provides inputs and/or reviews revised comms materials generated by CPFB.",
+        "If issues delay publicity launch or changes, CPF-POC collaborates with MOH-POC to resolve issues and adjust scope/timeline.",
+        "CPF-POC disseminates policy changes and updated comms materials, including holding lines and FAQs, to CPFB frontliners.",
+        "New publicity is launched and/or affected changes become effective.",
+        "CPF-POC collates feedback and provides it to MOH-POC for review and action."
+      ],
+      "management_note": "Inform CPFB management on publicity initiatives affecting a significant number of members (>=100,000) or assessed to have negative impact on members."
+    },
+    "one_hfg_department": {
+      "name": "Projects involving only 1 HFG Department",
+      "example": "MediShield Life premium changes",
+      "source_slide": 8,
+      "steps": [
+        "MOH-FP provides advance notice to CPF-HID on comms plans to support policy changes.",
+        "CPF-HID seeks clarification from MOH-FP or provides inputs to MOH-FP on comms plans.",
+        "CPF-HID collaborates with CPF-COM and/or MOH-FP to ensure affected materials at various channels are updated.",
+        "MOH-FP provides inputs and/or reviews the revised comms materials generated by CPFB.",
+        "If issues delay publicity launch or changes, CPF-HID collaborates with MOH-FP to resolve issues and adjust scope/timeline.",
+        "CPF-HID disseminates policy changes and updated comms materials, including holding lines and FAQs, to CPFB frontliners.",
+        "MediShield Life premium changes are announced and CPFB websites are updated.",
+        "CPF-HID collates feedback and provides it to MOH-FP.",
+        "CPF-HID identifies affected comms materials, drafts new/changed materials, clears drafts internally with HOD and keeps CPF-SSE informed.",
+        "CPF-HID clears drafted materials with MOH-FP.",
+        "Determine whether revised materials need CPF-COM clearance.",
+        "If required, CPF-HID clears revised materials with CPF-COM and CPF-SLD via email and keeps CPF-SSE in the loop.",
+        "CPF-HID sends revised materials to MOH-FP for information and/or further clearance.",
+        "Where changes require sharing with more than one department or CPFB management/frontliners, coordinate with CPF-SSE and CPF-HCP.",
+        "CPF-HID shares policy changes and comms plans with CPFB Management and CPF-HFG Management and keeps CPF-COM and CPF-SSE in the loop.",
+        "CPF-HID updates revised comms materials at the CPFB website."
+      ]
+    },
+    "multiple_hfg_departments": {
+      "name": "Internal process involving CPF-HID/HCP and/or cross-department HFG",
+      "source_slide": 6,
+      "steps": [
+        "CPF-HID/HCP identifies affected comms materials under its purview and keeps CPF-SSE informed.",
+        "CPF-HID/HCP drafts new/changed comms materials.",
+        "CPF-HID/HCP clears drafted materials internally with HOD and keeps CPF-SSE informed.",
+        "CPF-HID/HCP clears drafted materials with MOH-FP.",
+        "Determine whether revised comms materials need CPF-COM clearance.",
+        "If CPF-COM clearance is required, CPF-HID/HCP clears revised materials with CPF-COM and/or CPF-SLD via email and keeps CPF-SSE in the loop.",
+        "CPF-HID/HCP sends revised materials to MOH-FP for information and/or further clearance.",
+        "Determine whether changes require sharing with more than one department or CPFB Management/frontliners.",
+        "CPF-SSE coordinates and consolidates affected comms materials from CPF-HID and CPF-HCP where required.",
+        "CPF-POC shares policy changes and comms plans with CPFB Management, CPF-HFG Management and relevant stakeholders.",
+        "Relevant HFG teams update revised comms materials at the affected platforms."
+      ],
+      "footnotes": [
+        "For embargoed news, CPF-POC works with MOH-POC on what can be communicated internally. Early stages may only involve Section Heads and appointed project representatives.",
+        "Inform CPFB management on publicity initiatives affecting >=100,000 members or assessed to have negative impact on members."
+      ]
+    },
+    "cpfb_triggered_social_media": {
+      "name": "New social media comms materials where MOH involvement is not applicable",
+      "source_slide": 9,
+      "applicability": "MOH involvement is not required where MOH has given CPFB concurrence to produce social media comms materials without seeking MOH inputs, provided the messaging aligns with agreed HF key messages established with MOH for CPFB public education and outreach.",
+      "steps": [
+        "CPF-SSE collaborates with CPF-COM to develop new comms materials.",
+        "CPF-SSE seeks inputs from CPF-HID/HCP teams.",
+        "Determine whether existing and/or new comms materials require actions.",
+        "If no action is required, CPF-SSE shares new publicity with CPFB Management and CPF-HFG Management and keeps CPF-COM and CPF-HID/HCP in the loop.",
+        "If action is required, follow the internal clearance process.",
+        "CPF-HID disseminates new comms materials to frontliners.",
+        "New video is launched.",
+        "CPF-SSE collates feedback and provides it to MOH-SCE."
+      ],
+      "note": "A different workflow applies for CPFB-triggered changes."
+    },
+    "existing_editorial_changes": {
+      "name": "Existing comms materials requiring editorial changes on CPFB comms channels",
+      "source_slide": 10,
+      "steps": [
+        "HFG provides inputs and seeks clarification from MOH: 5 working days.",
+        "HFG identifies affected collaterals and drafts changes: 3 working days.",
+        "HFG seeks approval internally within HFG: 3 working days.",
+        "MOH seeks/provides approval: 10 working days.",
+        "COM/SLD clearance via email: 3 working days where applicable.",
+        "Relevant teams update the affected comms materials.",
+        "HFG disseminates information to CPFB frontliners: 10 working days prior to publicity launch."
+      ],
+      "platform_update_slas": {
+        "FAQs": {
+          "CPF_website": "3 working days",
+          "CSHL_website": "1 working day"
+        },
+        "website_static_contents_including_infographics": {
+          "CPF_website": "2 working days",
+          "CSHL_website": "1 working day"
+        },
+        "digital_notifications": {
+          "textual_changes_ACS": "3–7 working days",
+          "system_changes": "Minimum 60 working days / 3 months (for information)"
+        },
+        "digital_collaterals_media_resources": {
+          "CPF_website": "2 working days",
+          "CSHL_website": "1 working day"
+        },
+        "hardcopy_notifications": {
+          "textual_changes": "Minimum 20 working days (1–1.5 months)",
+          "system_changes": "Minimum 3 months (for information)"
+        },
+        "hardcopy_collaterals": "20 working days / 1 month"
+      },
+      "total_slas": {
+        "FAQs": "1.75 months",
+        "website_static_contents_including_infographics": "1.75 months",
+        "digital_notifications": "1.75 months",
+        "digital_collaterals": "1.75 months",
+        "hardcopy_notifications": "3 months",
+        "hardcopy_collaterals": "2.75 months"
+      },
+      "exceptions": [
+        "Editorial changes of greater complexity and/or larger volume require a longer SLA.",
+        "The 3-working-day COM/SLD clearance via email is noted as applicable only for the FAQ review and approving process."
+      ]
+    },
+    "new_comms_assets": {
+      "name": "New comms materials on CPFB comms channels requiring CPF-COM development",
+      "source_slide": 11,
+      "steps": [
+        "HFG informs COM on required publicity and provides requirements: 5 working days.",
+        "CPF-COM develops the new comms material with HFG's inputs.",
+        "Where necessary, HFG disseminates information to CPFB frontliners: 10 working days prior to publicity launch."
+      ],
+      "development_and_total_sla": {
+        "infographics": {
+          "com_development": "15 working days",
+          "total_sla": "1.5 months"
+        },
+        "eDMs": {
+          "com_development": "50 working days (2.5 months)",
+          "total_sla": "3.5 months"
+        },
+        "social_media_posts": {
+          "com_development": "50 working days (2.5 months)",
+          "total_sla": "3.5 months"
+        },
+        "videos": {
+          "com_development": "120 working days (6 months)",
+          "total_sla": "7 months"
+        }
+      },
+      "resource_note": "New and existing comms assets not in the prioritised list are subject to resource prioritisation. Comms plans and changes should be made known to CPF-COM as early as possible."
+    },
+    "moh_generated_no_cpf_channel_change": {
+      "name": "MOH-generated comms materials that do not require changes/updates on CPFB comms channels",
+      "source_slides": [
+        13,
+        14,
+        15,
+        16
+      ],
+      "applicability": "Internal clearance is NOT required unless CPFB is mentioned or the materials will be hosted at CPFB comms channels.",
+      "steps": [
+        "MOH-POC provides advance notice via CPFB-MOH COE to CPFB-POC on comms plans supporting policy changes.",
+        "CPF-POC seeks clarification from MOH-POC for details or provides inputs on comms plans where relevant.",
+        "CPF-POC collaborates with MOH-POC to prepare comms materials, holding lines and FAQs for managing ground queries where necessary.",
+        "If issues delay publicity launch or changes, CPF-POC collaborates with MOH-POC to resolve issues and adjust scope/timeline.",
+        "CPF-POC disseminates policy changes and updated comms materials, including holding lines and FAQs, to CPFB frontliners.",
+        "Publicity is launched and/or affected changes become effective.",
+        "CPF-POC collates feedback and provides it to MOH-POC for review and action."
+      ],
+      "special_rule": "For publicity that mentions CPFB, the CPF-POC seeks clarification from the MOH-POC and provides inputs as necessary.",
+      "total_sla": "1 month"
+    },
+    "moh_tv_ad_example": {
+      "name": "MOH TV ad expected to generate public buzz",
+      "source_slide": 15,
+      "steps": [
+        "MOH-SCE provides advance notice to CPF-SSE on comms plans supporting policy changes.",
+        "CPF-SSE seeks clarification from MOH-SCE POC or provides inputs to MOH-POC on comms plans.",
+        "CPF-SSE collaborates with MOH-SCE to prepare comms materials, holding lines and FAQs for managing ground queries where necessary.",
+        "If issues delay publicity launch or changes, CPF-SSE collaborates with MOH-SCE to resolve issues and adjust scope/timeline.",
+        "CPF-SSE disseminates policy changes and updated comms materials, including holding lines and FAQs, to frontliners.",
+        "TV ad is launched.",
+        "CPF-SSE collates feedback and provides it to MOH-SCE for review and action.",
+        "CPF-SSE shares comms plans with CPFB Management and CPF-HFG Management and keeps CPF-COM and HFG Team in the loop."
+      ]
+    }
+  },
+  "sla_summary": {
+    "existing_materials": {
+      "source_slide": 10,
+      "total_sla": {
+        "FAQs": "1.75 months",
+        "website_static_contents_including_infographics": "1.75 months",
+        "digital_notifications": "1.75 months",
+        "digital_collaterals": "1.75 months",
+        "hardcopy_notifications": "3 months",
+        "hardcopy_collaterals": "2.75 months"
+      }
+    },
+    "new_materials": {
+      "source_slide": 11,
+      "total_sla": {
+        "infographics": "1.5 months",
+        "eDMs": "3.5 months",
+        "social_media_posts": "3.5 months",
+        "videos": "7 months"
+      }
+    },
+    "moh_generated_without_cpf_channel_changes": {
+      "source_slide": 16,
+      "hfg_inputs_and_clarification": "5 working days",
+      "frontliner_dissemination": "10 working days prior to publicity launch",
+      "total_sla": "1 month"
+    }
+  },
+  "checklists": {
+    "cpf_com_develop_new_assets": {
+      "source_slide": 20,
+      "project_information_required": [
+        "Project Objectives / Key Message",
+        "Target audience",
+        "Key consumer insights about the audience(s)",
+        "Key challenges faced today",
+        "Whether similar projects were produced previously",
+        "Expected Delivery Date"
+      ],
+      "assets": [
+        "Infographics",
+        "Social posts",
+        "eDMs",
+        "Videos"
+      ],
+      "note": "CPFB will assess the mode and format most suited based on the specific messages."
+    },
+    "cpfb_ops_update": {
+      "source_slide": 21,
+      "online_updates": {
+        "CPF_website": {
+          "FAQs": "NICE 2.0",
+          "Website static contents": "AEM @ CPF website",
+          "Collaterals (media resources)": "AEM @ CPF website"
+        },
+        "CSHL_website": {
+          "FAQs": "AEM @ CSHL website"
+        }
+      },
+      "notifications": [
+        "Digital (ACS, CSHL)",
+        "Hardcopy"
+      ],
+      "hardcopy_updates": [
+        "Collaterals (e.g. handbook, leaflets)"
+      ],
+      "stakeholders_to_inform": [
+        "HFG Management (GD, HODs)",
+        "CPFB Frontliners",
+        "HFG (staff)"
+      ]
+    }
+  },
+  "content_ownership": {
+    "static_contents_faqs": {
+      "CPF-HID": {
+        "CPF website": [
+          "Eligibility, Benefits and Premiums for MediShield Life, CareShield Life and ElderShield",
+          "Integrated Shield Plans (IPs)",
+          "CareShield Life/ElderShield Supplements"
+        ],
+        "CSHL website": [
+          "Eligibility, Benefits and Premiums for CareShield Life and ElderShield",
+          "CareShield Life/ElderShield Supplements"
+        ]
+      },
+      "CPF-HCP": {
+        "CPF website": [
+          "MediSave",
+          "Treatments and hospitalisation coverage under MediShield Life",
+          "Claims under CareShield Life and ElderShield",
+          "MediSave Care"
+        ],
+        "CSHL website": [
+          "Claims under CareShield Life and ElderShield",
+          "MediSave Care"
+        ]
+      },
+      "CPF-HPD": {
+        "CPF website": [
+          "Healthcare Financing Page"
+        ],
+        "CSHL website": [
+          "Home Page"
+        ]
+      }
+    },
+    "eservices_calculators": {
+      "CPF-HID": {
+        "CPF website": [
+          "Change payer for MediShield Life, CareShield Life and ElderShield policy",
+          "MediShield Life and CareShield Life health declaration for Permanent Resident applicant",
+          "Set up GIRO for healthcare premiums",
+          "Suspension of MediShield Life premium collection (FormSG)",
+          "Top up my/my loved one's MediSave Account for healthcare insurance premium payment"
+        ],
+        "CSHL website": [
+          "My Policy",
+          "CSHL Premium Checker",
+          "Policy I am Paying for",
+          "My Notification",
+          "Outstanding Premium Statement",
+          "Application to join CSHL",
+          "Opt-out of CSHL",
+          "Termination of ESH"
+        ]
+      },
+      "CPF-HCP": {
+        "CPF website": [
+          "MediSave and MediShield Life Calculator",
+          "Apply to use MediSave for approved non-standard renal dialysis treatment",
+          "Top up my/my loved ones' MediSave Account using CPF savings for healthcare expenses (for members aged 55 and above)"
+        ],
+        "CSHL website": "N.A."
+      },
+      "CPF-HPD": {
+        "CPF website": "N.A.",
+        "CSHL website": [
+          "CSHL Write-to-us (WTU)",
+          "My Transaction"
+        ]
+      }
+    },
+    "dashboards": {
+      "CPF-HID": {
+        "Healthcare dashboard": [
+          "Health insurance card",
+          "Long-term care insurance card (coverage and dependants)",
+          "Government subsidies for healthcare card"
+        ],
+        "Level 2 pages": [
+          "Outstanding MSHL premium page",
+          "Upcoming MSHL renewals page",
+          "Dependants' coverage and premiums page"
+        ]
+      },
+      "CPF-HCP": {
+        "Healthcare dashboard": [
+          "Long-term care insurance card (claims)",
+          "Utilisation of healthcare benefits",
+          "Latest healthcare payment and claims"
+        ],
+        "Level 2 pages": [
+          "Claims history page"
+        ],
+        "Child dashboard": [
+          "Latest healthcare payments and claims tab"
+        ]
+      },
+      "CPF-HPD": {
+        "Healthcare dashboard": [
+          "Summary Card"
+        ]
+      }
+    }
+  },
+  "source_slides": [
+    {
+      "slide": 1,
+      "title": "Workflow and SLA for Preparation & Sharing of Healthcare Financing Comms Materials between CPFB & MOH",
+      "date": "8 Oct 2024"
+    },
+    {
+      "slide": 2,
+      "title": "Aim",
+      "key_points": "Establish internal workflows and SLAs for HF comms materials requiring and not requiring changes on CPFB comms channels."
+    },
+    {
+      "slide": 3,
+      "title": "Background / establishment of workflow",
+      "key_points": "Post-mortem findings, engagement from Jun 2024, and common understanding established at the 4 Sep 2024 CPF-MOH Comms Engagement meeting."
+    },
+    {
+      "slide": 4,
+      "title": "A) Comms Materials that Require Changes on CPFB Comms Channels"
+    },
+    {
+      "slide": 5,
+      "title": "Broad workflow for provision, preparation and dissemination via CPFB comms channels"
+    },
+    {
+      "slide": 6,
+      "title": "Internal process for providing inputs, preparing and disseminating comms materials that require changes on CPFB comms channels"
+    },
+    {
+      "slide": 7,
+      "title": "Workflow continuation / internal clearance logic"
+    },
+    {
+      "slide": 8,
+      "title": "Projects involving only 1 HFG Dept"
+    },
+    {
+      "slide": 9,
+      "title": "New social media comms materials where MOH involvement is not applicable"
+    },
+    {
+      "slide": 10,
+      "title": "SLAs for providing inputs, preparing and disseminating editorial changes to existing comms materials on CPFB comms channels"
+    },
+    {
+      "slide": 11,
+      "title": "SLAs for providing inputs, preparing and disseminating new comms materials on CPFB comms channels"
+    },
+    {
+      "slide": 12,
+      "title": "Clearance with CPF-COM is required for revision of comms materials arising from policy changes, new and/or revised narratives"
+    },
+    {
+      "slide": 13,
+      "title": "B) Comms Materials that Do Not Require Changes at CPF Comms Channels"
+    },
+    {
+      "slide": 14,
+      "title": "Internal workflow for MOH-generated comms materials without CPFB channel changes"
+    },
+    {
+      "slide": 15,
+      "title": "TV ad by MOH as illustration"
+    },
+    {
+      "slide": 16,
+      "title": "SLAs for disseminating comms materials generated by MOH that do not require changes/updates on CPFB comms channels"
+    },
+    {
+      "slide": 17,
+      "title": "Points of Contact (POCs)"
+    },
+    {
+      "slide": 18,
+      "title": "The Points of Contact (POC) varies depending on the type of outreach"
+    },
+    {
+      "slide": 19,
+      "title": "Supplementary Slides"
+    },
+    {
+      "slide": 20,
+      "title": "Checklist for comms materials requiring CPF-COM to develop new comms assets"
+    },
+    {
+      "slide": 21,
+      "title": "Checklist for comms materials requiring CPFB Ops teams to update"
+    },
+    {
+      "slide": 22,
+      "title": "Comms Materials on websites maintained and updated by respective departments – Static Contents/FAQs"
+    },
+    {
+      "slide": 23,
+      "title": "Comms Materials on websites maintained and updated by respective departments – eServices/Calculator"
+    },
+    {
+      "slide": 24,
+      "title": "Comms Materials on websites maintained and updated by respective departments – Dashboards"
+    }
+  ],
+  "bot_instructions": {
+    "answering_rules": [
+      "Use this SOP as the authoritative source for the 2024 workflow described here.",
+      "When a user provides a scenario, first classify the scenario before recommending a workflow.",
+      "Do not assume that every media-related question belongs to this SOP; distinguish comms-material sharing/update scenarios from the later 2025 media-material preparation and issuance SOP.",
+      "State the applicable pathway and explain why it applies.",
+      "Identify relevant roles/POCs and the required next action.",
+      "State the SLA only when supported by the source and identify the material category used to determine it.",
+      "If the scenario is ambiguous, ask targeted clarification questions rather than guessing.",
+      "Do not invent an SLA, role, clearance requirement or exception not present in the source.",
+      "For current or changed organisational processes, advise the user to verify against the latest endorsed SOP."
+    ]
+  },
+  "metadata": {
+    "slide_count": 24,
+    "original_deck_described_by_user_as": "20 slides",
+    "additional_slides_added": [
+      21,
+      22,
+      23,
+      24
+    ],
+    "important_note": "The four continuation slides supplied by the user are numbered 21–24, so the complete source represented here contains 24 numbered slides.",
+    "source_slide_meaning": "source_slide refers to the original slide number in the approved deck. The slide PDF/images do not need to be uploaded to the VS Code project for these references to work."
+  }
+}
