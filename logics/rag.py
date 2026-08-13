@@ -28,7 +28,7 @@ from openai import OpenAI
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-SOP_FILE = BASE_DIR / "data" / "healthcare_comms_sops.json"
+SOP_FILE = BASE_DIR / "Data" / "healthcare_comms_sops.json"
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
 
